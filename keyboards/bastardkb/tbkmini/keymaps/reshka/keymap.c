@@ -10,6 +10,24 @@ enum layer_names {
     L_KEYBOARD,
 };
 
+enum combo_names {
+    C_R_T_LPRN,
+    C_Y_U_RPRN,
+    C_F_G_LBRC,
+    C_H_J_RBRC,
+    C_V_B_LCBR,
+    C_N_M_RCBR,
+    C_F_J_EQL,
+    C_W_E_MINS,
+    C_E_R_PLUS,
+    C_U_I_UNDS,
+    C_I_O_PIPE,
+    C_D_F_QUOT,
+    C_J_K_DQUO,
+    C_S_D_GRV,
+    C_K_L_TILD,
+};
+
 #define NAV_TAB LT(L_NAV, KC_TAB)
 #define SYS_CAP LT(L_SYS, KC_CAPS)
 
@@ -34,6 +52,78 @@ const key_override_t *key_overrides[] = {
     &delete_key_override,
     &tilde_esc_override,
 };
+
+const uint16_t PROGMEM combo_rt_lprn[] = {KC_R, KC_T, COMBO_END};
+const uint16_t PROGMEM combo_yu_rprn[] = {KC_Y, KC_U, COMBO_END};
+const uint16_t PROGMEM combo_fg_lbrc[] = {KC_F, KC_G, COMBO_END};
+const uint16_t PROGMEM combo_hj_rbrc[] = {KC_H, KC_J, COMBO_END};
+const uint16_t PROGMEM combo_vb_lcbr[] = {KC_V, KC_B, COMBO_END};
+const uint16_t PROGMEM combo_nm_rcbr[] = {KC_N, KC_M, COMBO_END};
+const uint16_t PROGMEM combo_fj_eql[]  = {KC_F, KC_J, COMBO_END};
+const uint16_t PROGMEM combo_we_mins[] = {KC_W, KC_E, COMBO_END};
+const uint16_t PROGMEM combo_er_plus[] = {KC_E, KC_R, COMBO_END};
+const uint16_t PROGMEM combo_ui_unds[] = {KC_U, KC_I, COMBO_END};
+const uint16_t PROGMEM combo_io_pipe[] = {KC_I, KC_O, COMBO_END};
+const uint16_t PROGMEM combo_df_quot[] = {KC_D, KC_F, COMBO_END};
+const uint16_t PROGMEM combo_jk_dquo[] = {KC_J, KC_K, COMBO_END};
+const uint16_t PROGMEM combo_sd_grv[]  = {KC_S, KC_D, COMBO_END};
+const uint16_t PROGMEM combo_kl_tild[] = {KC_K, KC_L, COMBO_END};
+
+combo_t key_combos[] = {
+    [C_R_T_LPRN] = COMBO(combo_rt_lprn, KC_LPRN),
+    [C_Y_U_RPRN] = COMBO(combo_yu_rprn, KC_RPRN),
+    [C_F_G_LBRC] = COMBO(combo_fg_lbrc, KC_LBRC),
+    [C_H_J_RBRC] = COMBO(combo_hj_rbrc, KC_RBRC),
+    [C_V_B_LCBR] = COMBO(combo_vb_lcbr, KC_LCBR),
+    [C_N_M_RCBR] = COMBO(combo_nm_rcbr, KC_RCBR),
+    [C_F_J_EQL]  = COMBO(combo_fj_eql, KC_EQL),
+    [C_W_E_MINS] = COMBO(combo_we_mins, KC_MINS),
+    [C_E_R_PLUS] = COMBO(combo_er_plus, KC_PLUS),
+    [C_U_I_UNDS] = COMBO(combo_ui_unds, KC_UNDS),
+    [C_I_O_PIPE] = COMBO(combo_io_pipe, KC_PIPE),
+    [C_D_F_QUOT] = COMBO(combo_df_quot, KC_QUOT),
+    [C_J_K_DQUO] = COMBO(combo_jk_dquo, KC_DQUO),
+    [C_S_D_GRV]  = COMBO(combo_sd_grv, KC_GRV),
+    [C_K_L_TILD] = COMBO(combo_kl_tild, KC_TILD),
+};
+
+uint16_t get_combo_term(uint16_t combo_index, combo_t *combo) {
+    (void)combo;
+
+    // Tighten timings on more roll-prone pairs; loosen the cross-hand equals combo slightly.
+    switch (combo_index) {
+        case C_W_E_MINS:
+        case C_E_R_PLUS:
+        case C_U_I_UNDS:
+        case C_I_O_PIPE:
+        case C_S_D_GRV:
+        case C_K_L_TILD:
+            return 22;
+        case C_D_F_QUOT:
+        case C_J_K_DQUO:
+        case C_R_T_LPRN:
+            return 24;
+        case C_F_J_EQL:
+            return 38;
+        default:
+            return COMBO_TERM;
+    }
+}
+
+bool get_combo_must_tap(uint16_t combo_index, combo_t *combo) {
+    (void)combo_index;
+    (void)combo;
+    return true;
+}
+
+bool combo_should_trigger(uint16_t combo_index, combo_t *combo, uint16_t keycode, keyrecord_t *record) {
+    (void)combo_index;
+    (void)combo;
+    (void)keycode;
+    (void)record;
+
+    return get_highest_layer(layer_state | default_layer_state) == L_BASE;
+}
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [L_BASE] = LAYOUT_split_3x6_3(

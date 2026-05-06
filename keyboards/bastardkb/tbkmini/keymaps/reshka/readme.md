@@ -18,6 +18,7 @@ This keymap is a documented starting point for a TBK Mini on Splinky v3 using:
 
 - `VIA_ENABLE`
 - `CAPS_WORD_ENABLE`
+- `COMBO_ENABLE`
 - `KEY_OVERRIDE_ENABLE`
 - `LAYER_LOCK_ENABLE`
 - `REPEAT_KEY_ENABLE`
@@ -107,6 +108,59 @@ This keeps maintenance actions off normal daily layers.
 
 The second override gives easy access to `~` without introducing a dedicated
 symbol layer.
+
+## Combos
+
+Combos are intentionally configured with a strict policy:
+
+- base layer only
+- tap-only
+- `COMBO_STRICT_TIMER`
+- `30ms` default timing
+- stricter per-combo timings for common same-hand bigrams
+- slightly looser timing for the cross-hand `F + J` combo
+
+This keeps the combo set usable for fast typing while reducing accidental
+triggers from normal rolls.
+
+### Programming combos
+
+- `R + T -> (`
+- `Y + U -> )`
+- `F + G -> [`
+- `H + J -> ]`
+- `V + B -> {`
+- `N + M -> }`
+- `F + J -> =`
+- `W + E -> -`
+- `E + R -> +`
+- `U + I -> _`
+- `I + O -> |`
+- `D + F -> '`
+- `J + K -> "`
+- `S + D -> backtick`
+- `K + L -> ~`
+
+### Combo timing notes
+
+The following combos are stricter than the `30ms` default because they overlap
+with more plausible same-hand letter rolls:
+
+- `W + E`
+- `E + R`
+- `U + I`
+- `I + O`
+- `S + D`
+- `K + L`
+
+Quote combos are also slightly stricter:
+
+- `D + F`
+- `J + K`
+- `R + T`
+
+`F + J -> =` is slightly looser because it is a same-position cross-hand combo
+and is much less likely to appear accidentally in normal typing.
 
 ## Build
 
