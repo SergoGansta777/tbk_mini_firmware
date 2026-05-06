@@ -138,6 +138,8 @@ Combos are intentionally configured with a strict policy:
 - `COMBO_STRICT_TIMER`
 - `30ms` default timing
 - stricter per-combo timings for common same-hand bigrams
+- a small bump for `(`
+- a slightly looser timing for `{` and `}`
 - slightly looser timing for the cross-hand `F + J` combo
 
 This keeps the combo set usable for fast typing while reducing accidental
@@ -177,7 +179,15 @@ Quote combos are also slightly stricter:
 
 - `D + F`
 - `J + K`
-- `R + T`
+
+`R + T -> (` is slightly looser than the quote combos, but still below the
+`30ms` default to keep accidental `rt` triggers in check.
+
+Curly brace combos are slightly looser than the `30ms` default because they are
+harder to chord cleanly on the TBK Mini's outer curl:
+
+- `V + B`
+- `N + M`
 
 `F + J -> =` is slightly looser because it is a same-position cross-hand combo
 and is much less likely to appear accidentally in normal typing.

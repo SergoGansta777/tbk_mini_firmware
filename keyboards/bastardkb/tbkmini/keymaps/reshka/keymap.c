@@ -30,6 +30,8 @@ enum combo_names {
 
 #define COMBO_TERM_ROLL   22
 #define COMBO_TERM_TIGHT  24
+#define COMBO_TERM_PAREN  26
+#define COMBO_TERM_CURLY  32
 #define COMBO_TERM_CROSS  38
 #define NAV_TAPPING_TERM  160
 #define SYS_TAPPING_TERM  170
@@ -112,8 +114,11 @@ combo_t key_combos[] = {
 uint16_t get_combo_term(uint16_t combo_index, combo_t *combo) {
     (void)combo;
 
-    // Tighten timings on more roll-prone pairs; loosen the cross-hand equals combo slightly.
+    // Keep roll-prone pairs strict; allow a little more room on the harder symbol chords.
     switch (combo_index) {
+        case C_V_B_LCBR:
+        case C_N_M_RCBR:
+            return COMBO_TERM_CURLY;
         case C_W_E_MINS:
         case C_E_R_PLUS:
         case C_U_I_UNDS:
@@ -123,8 +128,9 @@ uint16_t get_combo_term(uint16_t combo_index, combo_t *combo) {
             return COMBO_TERM_ROLL;
         case C_D_F_QUOT:
         case C_J_K_DQUO:
-        case C_R_T_LPRN:
             return COMBO_TERM_TIGHT;
+        case C_R_T_LPRN:
+            return COMBO_TERM_PAREN;
         case C_F_J_EQL:
             return COMBO_TERM_CROSS;
         default:
