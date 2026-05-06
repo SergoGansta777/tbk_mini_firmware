@@ -60,7 +60,7 @@ Right outer column, bottom to top:
 Thumbs:
 
 - left: `Command`, `Nav/Tab`, `Space`
-- right: `Enter`, `Backspace`, `System/Caps Lock`
+- right: `Enter`, `System/Caps Lock`, `Backspace`
 
 The base layer intentionally has no firmware home-row mods.
 
