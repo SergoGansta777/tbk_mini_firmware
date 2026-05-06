@@ -28,6 +28,10 @@ enum combo_names {
     C_K_L_TILD,
 };
 
+#define COMBO_TERM_ROLL   22
+#define COMBO_TERM_TIGHT  24
+#define COMBO_TERM_CROSS  38
+
 #define NAV_TAB LT(L_NAV, KC_TAB)
 #define SYS_CAP LT(L_SYS, KC_CAPS)
 
@@ -45,29 +49,29 @@ enum combo_names {
 #define TAB_PREV   G(S(KC_LBRC))
 #define TAB_NEXT   G(S(KC_RBRC))
 
-const key_override_t delete_key_override = ko_make_basic(MOD_MASK_SHIFT, KC_BSPC, KC_DEL);
-const key_override_t tilde_esc_override  = ko_make_basic(MOD_MASK_SHIFT, KC_ESC, S(KC_GRV));
+static const key_override_t delete_key_override = ko_make_basic(MOD_MASK_SHIFT, KC_BSPC, KC_DEL);
+static const key_override_t tilde_esc_override  = ko_make_basic(MOD_MASK_SHIFT, KC_ESC, S(KC_GRV));
 
 const key_override_t *key_overrides[] = {
     &delete_key_override,
     &tilde_esc_override,
 };
 
-const uint16_t PROGMEM combo_rt_lprn[] = {KC_R, KC_T, COMBO_END};
-const uint16_t PROGMEM combo_yu_rprn[] = {KC_Y, KC_U, COMBO_END};
-const uint16_t PROGMEM combo_fg_lbrc[] = {KC_F, KC_G, COMBO_END};
-const uint16_t PROGMEM combo_hj_rbrc[] = {KC_H, KC_J, COMBO_END};
-const uint16_t PROGMEM combo_vb_lcbr[] = {KC_V, KC_B, COMBO_END};
-const uint16_t PROGMEM combo_nm_rcbr[] = {KC_N, KC_M, COMBO_END};
-const uint16_t PROGMEM combo_fj_eql[]  = {KC_F, KC_J, COMBO_END};
-const uint16_t PROGMEM combo_we_mins[] = {KC_W, KC_E, COMBO_END};
-const uint16_t PROGMEM combo_er_plus[] = {KC_E, KC_R, COMBO_END};
-const uint16_t PROGMEM combo_ui_unds[] = {KC_U, KC_I, COMBO_END};
-const uint16_t PROGMEM combo_io_pipe[] = {KC_I, KC_O, COMBO_END};
-const uint16_t PROGMEM combo_df_quot[] = {KC_D, KC_F, COMBO_END};
-const uint16_t PROGMEM combo_jk_dquo[] = {KC_J, KC_K, COMBO_END};
-const uint16_t PROGMEM combo_sd_grv[]  = {KC_S, KC_D, COMBO_END};
-const uint16_t PROGMEM combo_kl_tild[] = {KC_K, KC_L, COMBO_END};
+static const uint16_t PROGMEM combo_rt_lprn[] = {KC_R, KC_T, COMBO_END};
+static const uint16_t PROGMEM combo_yu_rprn[] = {KC_Y, KC_U, COMBO_END};
+static const uint16_t PROGMEM combo_fg_lbrc[] = {KC_F, KC_G, COMBO_END};
+static const uint16_t PROGMEM combo_hj_rbrc[] = {KC_H, KC_J, COMBO_END};
+static const uint16_t PROGMEM combo_vb_lcbr[] = {KC_V, KC_B, COMBO_END};
+static const uint16_t PROGMEM combo_nm_rcbr[] = {KC_N, KC_M, COMBO_END};
+static const uint16_t PROGMEM combo_fj_eql[]  = {KC_F, KC_J, COMBO_END};
+static const uint16_t PROGMEM combo_we_mins[] = {KC_W, KC_E, COMBO_END};
+static const uint16_t PROGMEM combo_er_plus[] = {KC_E, KC_R, COMBO_END};
+static const uint16_t PROGMEM combo_ui_unds[] = {KC_U, KC_I, COMBO_END};
+static const uint16_t PROGMEM combo_io_pipe[] = {KC_I, KC_O, COMBO_END};
+static const uint16_t PROGMEM combo_df_quot[] = {KC_D, KC_F, COMBO_END};
+static const uint16_t PROGMEM combo_jk_dquo[] = {KC_J, KC_K, COMBO_END};
+static const uint16_t PROGMEM combo_sd_grv[]  = {KC_S, KC_D, COMBO_END};
+static const uint16_t PROGMEM combo_kl_tild[] = {KC_K, KC_L, COMBO_END};
 
 combo_t key_combos[] = {
     [C_R_T_LPRN] = COMBO(combo_rt_lprn, KC_LPRN),
@@ -98,13 +102,13 @@ uint16_t get_combo_term(uint16_t combo_index, combo_t *combo) {
         case C_I_O_PIPE:
         case C_S_D_GRV:
         case C_K_L_TILD:
-            return 22;
+            return COMBO_TERM_ROLL;
         case C_D_F_QUOT:
         case C_J_K_DQUO:
         case C_R_T_LPRN:
-            return 24;
+            return COMBO_TERM_TIGHT;
         case C_F_J_EQL:
-            return 38;
+            return COMBO_TERM_CROSS;
         default:
             return COMBO_TERM;
     }
@@ -122,6 +126,7 @@ bool combo_should_trigger(uint16_t combo_index, combo_t *combo, uint16_t keycode
     (void)keycode;
     (void)record;
 
+    // Symbol combos are a base-layer typing primitive, not a layer-local feature.
     return get_highest_layer(layer_state | default_layer_state) == L_BASE;
 }
 
