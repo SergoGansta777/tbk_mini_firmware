@@ -31,6 +31,8 @@ enum combo_names {
 #define COMBO_TERM_ROLL   22
 #define COMBO_TERM_TIGHT  24
 #define COMBO_TERM_CROSS  38
+#define NAV_TAPPING_TERM  160
+#define SYS_TAPPING_TERM  170
 
 #define NAV_TAB LT(L_NAV, KC_TAB)
 #define SYS_CAP LT(L_SYS, KC_CAPS)
@@ -48,6 +50,15 @@ enum combo_names {
 #define MAC_SSHOT  G(S(KC_4))
 #define TAB_PREV   G(S(KC_LBRC))
 #define TAB_NEXT   G(S(KC_RBRC))
+
+#ifdef RGB_MATRIX_ENABLE
+enum indicator_leds {
+    LED_LEFT_SHIFT  = 2,
+    LED_NAV_THUMB   = 20,
+    LED_RIGHT_SHIFT = 38,
+    LED_SYS_THUMB   = 40,
+};
+#endif
 
 static const key_override_t delete_key_override = ko_make_basic(MOD_MASK_SHIFT, KC_BSPC, KC_DEL);
 static const key_override_t tilde_esc_override  = ko_make_basic(MOD_MASK_SHIFT, KC_ESC, S(KC_GRV));
@@ -154,7 +165,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [L_KEYBOARD] = LAYOUT_split_3x6_3(
         QK_BOOT, EE_CLR,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-        RM_TOGG, RM_HUEU, RM_SATU, RM_VALU, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KO_TOGG, CW_TOGG,
+        RM_TOGG, RM_HUEU, RM_SATU, RM_VALU, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KO_TOGG, CM_TOGG,
         RM_NEXT, RM_HUED, RM_SATD, RM_VALD, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
         _______, _______, _______, _______, _______, _______
     ),
@@ -162,6 +173,31 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 layer_state_t layer_state_set_user(layer_state_t state) {
     return update_tri_layer_state(state, L_NAV, L_SYS, L_KEYBOARD);
+}
+
+uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
+    (void)record;
+
+    switch (keycode) {
+        case NAV_TAB:
+            return NAV_TAPPING_TERM;
+        case SYS_CAP:
+            return SYS_TAPPING_TERM;
+        default:
+            return TAPPING_TERM;
+    }
+}
+
+uint16_t get_quick_tap_term(uint16_t keycode, keyrecord_t *record) {
+    (void)record;
+
+    switch (keycode) {
+        case NAV_TAB:
+        case SYS_CAP:
+            return 0;
+        default:
+            return QUICK_TAP_TERM;
+    }
 }
 
 bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
@@ -175,3 +211,42 @@ bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
             return false;
     }
 }
+
+#ifdef RGB_MATRIX_ENABLE
+static void set_indicator_color(uint8_t index, uint8_t red, uint8_t green, uint8_t blue) {
+    rgb_matrix_set_color(index, red, green, blue);
+}
+
+bool rgb_matrix_indicators_user(void) {
+    uint8_t layer = get_highest_layer(layer_state | default_layer_state);
+
+    if (is_caps_word_on()) {
+        set_indicator_color(LED_LEFT_SHIFT, 0, 128, 40);
+        set_indicator_color(LED_RIGHT_SHIFT, 0, 128, 40);
+    }
+
+#ifdef COMBO_ENABLE
+    if (layer == L_BASE && !is_combo_enabled()) {
+        set_indicator_color(LED_NAV_THUMB, 128, 64, 0);
+        set_indicator_color(LED_SYS_THUMB, 128, 64, 0);
+    }
+#endif
+
+    switch (layer) {
+        case L_NAV:
+            set_indicator_color(LED_NAV_THUMB, 0, 96, 128);
+            break;
+        case L_SYS:
+            set_indicator_color(LED_SYS_THUMB, 128, 72, 0);
+            break;
+        case L_KEYBOARD:
+            set_indicator_color(LED_NAV_THUMB, 128, 0, 0);
+            set_indicator_color(LED_SYS_THUMB, 128, 0, 0);
+            break;
+        default:
+            break;
+    }
+
+    return true;
+}
+#endif

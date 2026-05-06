@@ -34,6 +34,13 @@ Only the two thumb layer-taps use tap-hold behavior:
 the layer decision settle earlier when you chord the thumb key with another key,
 which is better for fast typing than waiting out the full tapping term.
 
+Additional tuning for the two thumb layer keys:
+
+- `Nav/Tab` uses a `160ms` tapping term
+- `System/Caps Lock` uses a `170ms` tapping term
+- `QUICK_TAP_TERM` is disabled for both keys so a fast tap-then-hold does not
+  repeat `Tab` or `Caps Lock` instead of entering the layer
+
 ## Layer overview
 
 ### Layer 0: Base
@@ -97,9 +104,22 @@ Purpose:
 - EEPROM clear
 - RGB matrix controls
 - toggle key overrides
-- fallback `Caps Word` toggle
+- toggle combos
 
 This keeps maintenance actions off normal daily layers.
+
+## RGB status indicators
+
+The firmware uses a small set of LED indicators instead of full-board layer
+lighting:
+
+- `Nav` layer: the `Nav/Tab` thumb LED turns cyan
+- `System` layer: the `System/Caps Lock` thumb LED turns amber
+- `Keyboard` layer: both layer-thumb LEDs turn red
+- `Caps Word`: both shift LEDs turn green
+- combos disabled on the base layer: both layer-thumb LEDs turn amber
+
+This keeps the board readable without overriding your normal RGB preferences.
 
 ## Key overrides
 
