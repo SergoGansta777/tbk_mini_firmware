@@ -78,10 +78,35 @@ static uint32_t sys_layer_timer = 0;
 static const key_override_t delete_key_override = ko_make_basic(MOD_MASK_SHIFT, KC_BSPC, KC_DEL);
 static const key_override_t tilde_esc_override  = ko_make_basic(MOD_MASK_SHIFT, KC_ESC, S(KC_GRV));
 
-const key_override_t *key_overrides[] = {
+const key_override_t *const key_overrides[] = {
     &delete_key_override,
     &tilde_esc_override,
 };
+
+static uint8_t active_layer(void) {
+    return get_highest_layer(layer_state | default_layer_state);
+}
+
+static bool is_thumb_layer_key(uint16_t keycode) {
+    switch (keycode) {
+        case NAV_TAB:
+        case SYS_CAP:
+            return true;
+        default:
+            return false;
+    }
+}
+
+static uint16_t thumb_layer_tapping_term(uint16_t keycode) {
+    switch (keycode) {
+        case NAV_TAB:
+            return NAV_TAPPING_TERM;
+        case SYS_CAP:
+            return SYS_TAPPING_TERM;
+        default:
+            return TAPPING_TERM;
+    }
+}
 
 static const uint16_t PROGMEM combo_rt_lprn[] = {KC_R, KC_T, COMBO_END};
 static const uint16_t PROGMEM combo_yu_rprn[] = {KC_Y, KC_U, COMBO_END};
@@ -157,7 +182,7 @@ bool combo_should_trigger(uint16_t combo_index, combo_t *combo, uint16_t keycode
     (void)record;
 
     // Symbol combos are a base-layer typing primitive, not a layer-local feature.
-    return get_highest_layer(layer_state | default_layer_state) == L_BASE;
+    return active_layer() == L_BASE;
 }
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -216,39 +241,18 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     (void)record;
-
-    switch (keycode) {
-        case NAV_TAB:
-            return NAV_TAPPING_TERM;
-        case SYS_CAP:
-            return SYS_TAPPING_TERM;
-        default:
-            return TAPPING_TERM;
-    }
+    return thumb_layer_tapping_term(keycode);
 }
 
 uint16_t get_quick_tap_term(uint16_t keycode, keyrecord_t *record) {
     (void)record;
 
-    switch (keycode) {
-        case NAV_TAB:
-        case SYS_CAP:
-            return 0;
-        default:
-            return QUICK_TAP_TERM;
-    }
+    return is_thumb_layer_key(keycode) ? 0 : QUICK_TAP_TERM;
 }
 
 bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
     (void)record;
-
-    switch (keycode) {
-        case NAV_TAB:
-        case SYS_CAP:
-            return true;
-        default:
-            return false;
-    }
+    return is_thumb_layer_key(keycode);
 }
 
 #ifdef RGB_MATRIX_ENABLE
@@ -269,7 +273,7 @@ static void set_thumb_pair(
 }
 
 bool rgb_matrix_indicators_user(void) {
-    uint8_t layer = get_highest_layer(layer_state | default_layer_state);
+    uint8_t layer = active_layer();
 
     if (is_caps_word_on()) {
         set_indicator_color(LED_LEFT_SHIFT, 0, INDICATOR_ON, 40);
