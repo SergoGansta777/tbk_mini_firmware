@@ -113,13 +113,14 @@ This keeps maintenance actions off normal daily layers.
 The firmware uses a small set of LED indicators instead of full-board layer
 lighting:
 
-- `Nav` layer: the `Nav/Tab` thumb LED turns cyan and the opposite layer thumb glows dim cyan
-- `System` layer: the `System/Caps Lock` thumb LED turns amber and the opposite layer thumb glows dim amber
+- `Nav` layer: after a short hold delay, the `Nav/Tab` thumb LED turns cyan and the opposite layer thumb glows dim cyan
+- `System` layer: after a short hold delay, the `System/Caps Lock` thumb LED turns amber and the opposite layer thumb glows dim amber
 - `Keyboard` layer: both layer-thumb LEDs turn red
 - `Caps Word`: both shift LEDs turn green
 - combos disabled on the base layer: both layer-thumb LEDs turn purple
 
-This keeps the board readable without overriding your normal RGB preferences.
+Momentary layer indicators use lower brightness and a small delay so quick
+number-entry and short nav taps do not flash in peripheral vision.
 
 ## Key overrides
 

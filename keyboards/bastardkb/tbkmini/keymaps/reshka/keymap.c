@@ -35,6 +35,7 @@ enum combo_names {
 #define COMBO_TERM_CROSS  38
 #define NAV_TAPPING_TERM  160
 #define SYS_TAPPING_TERM  170
+#define LAYER_INDICATOR_DELAY 90
 
 #define NAV_TAB LT(L_NAV, KC_TAB)
 #define SYS_CAP LT(L_SYS, KC_CAPS)
@@ -63,10 +64,15 @@ enum indicator_leds {
 
 enum indicator_brightness {
     INDICATOR_OFF = 0,
-    INDICATOR_DIM = 32,
-    INDICATOR_MID = 72,
-    INDICATOR_ON  = 128,
+    INDICATOR_DIM = 20,
+    INDICATOR_MID = 48,
+    INDICATOR_ON  = 96,
 };
+#endif
+
+#ifdef RGB_MATRIX_ENABLE
+static uint32_t nav_layer_timer = 0;
+static uint32_t sys_layer_timer = 0;
 #endif
 
 static const key_override_t delete_key_override = ko_make_basic(MOD_MASK_SHIFT, KC_BSPC, KC_DEL);
@@ -185,7 +191,27 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 layer_state_t layer_state_set_user(layer_state_t state) {
-    return update_tri_layer_state(state, L_NAV, L_SYS, L_KEYBOARD);
+    state = update_tri_layer_state(state, L_NAV, L_SYS, L_KEYBOARD);
+
+#ifdef RGB_MATRIX_ENABLE
+    static bool nav_was_on = false;
+    static bool sys_was_on = false;
+
+    bool nav_is_on = layer_state_cmp(state, L_NAV);
+    bool sys_is_on = layer_state_cmp(state, L_SYS);
+
+    if (nav_is_on && !nav_was_on) {
+        nav_layer_timer = timer_read32();
+    }
+    if (sys_is_on && !sys_was_on) {
+        sys_layer_timer = timer_read32();
+    }
+
+    nav_was_on = nav_is_on;
+    sys_was_on = sys_is_on;
+#endif
+
+    return state;
 }
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
@@ -258,10 +284,14 @@ bool rgb_matrix_indicators_user(void) {
 
     switch (layer) {
         case L_NAV:
-            set_thumb_pair(0, 96, INDICATOR_ON, 0, INDICATOR_DIM, INDICATOR_DIM);
+            if (timer_elapsed32(nav_layer_timer) >= LAYER_INDICATOR_DELAY) {
+                set_thumb_pair(0, INDICATOR_MID, INDICATOR_ON, 0, INDICATOR_DIM, INDICATOR_DIM);
+            }
             break;
         case L_SYS:
-            set_thumb_pair(INDICATOR_DIM, INDICATOR_DIM / 2, INDICATOR_OFF, INDICATOR_ON, INDICATOR_MID, INDICATOR_OFF);
+            if (timer_elapsed32(sys_layer_timer) >= LAYER_INDICATOR_DELAY) {
+                set_thumb_pair(INDICATOR_DIM, INDICATOR_DIM / 2, INDICATOR_OFF, INDICATOR_ON, INDICATOR_MID, INDICATOR_OFF);
+            }
             break;
         case L_KEYBOARD:
             set_thumb_pair(INDICATOR_ON, 0, 0, INDICATOR_ON, 0, 0);
