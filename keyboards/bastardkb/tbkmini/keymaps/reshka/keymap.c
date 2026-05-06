@@ -58,6 +58,13 @@ enum indicator_leds {
     LED_RIGHT_SHIFT = 38,
     LED_SYS_THUMB   = 40,
 };
+
+enum indicator_brightness {
+    INDICATOR_OFF = 0,
+    INDICATOR_DIM = 32,
+    INDICATOR_MID = 72,
+    INDICATOR_ON  = 128,
+};
 #endif
 
 static const key_override_t delete_key_override = ko_make_basic(MOD_MASK_SHIFT, KC_BSPC, KC_DEL);
@@ -217,31 +224,41 @@ static void set_indicator_color(uint8_t index, uint8_t red, uint8_t green, uint8
     rgb_matrix_set_color(index, red, green, blue);
 }
 
+static void set_thumb_pair(
+    uint8_t left_red,
+    uint8_t left_green,
+    uint8_t left_blue,
+    uint8_t right_red,
+    uint8_t right_green,
+    uint8_t right_blue
+) {
+    set_indicator_color(LED_NAV_THUMB, left_red, left_green, left_blue);
+    set_indicator_color(LED_SYS_THUMB, right_red, right_green, right_blue);
+}
+
 bool rgb_matrix_indicators_user(void) {
     uint8_t layer = get_highest_layer(layer_state | default_layer_state);
 
     if (is_caps_word_on()) {
-        set_indicator_color(LED_LEFT_SHIFT, 0, 128, 40);
-        set_indicator_color(LED_RIGHT_SHIFT, 0, 128, 40);
+        set_indicator_color(LED_LEFT_SHIFT, 0, INDICATOR_ON, 40);
+        set_indicator_color(LED_RIGHT_SHIFT, 0, INDICATOR_ON, 40);
     }
 
 #ifdef COMBO_ENABLE
     if (layer == L_BASE && !is_combo_enabled()) {
-        set_indicator_color(LED_NAV_THUMB, 128, 64, 0);
-        set_indicator_color(LED_SYS_THUMB, 128, 64, 0);
+        set_thumb_pair(INDICATOR_MID, 0, INDICATOR_MID, INDICATOR_MID, 0, INDICATOR_MID);
     }
 #endif
 
     switch (layer) {
         case L_NAV:
-            set_indicator_color(LED_NAV_THUMB, 0, 96, 128);
+            set_thumb_pair(0, 96, INDICATOR_ON, 0, INDICATOR_DIM, INDICATOR_DIM);
             break;
         case L_SYS:
-            set_indicator_color(LED_SYS_THUMB, 128, 72, 0);
+            set_thumb_pair(INDICATOR_DIM, INDICATOR_DIM / 2, INDICATOR_OFF, INDICATOR_ON, INDICATOR_MID, INDICATOR_OFF);
             break;
         case L_KEYBOARD:
-            set_indicator_color(LED_NAV_THUMB, 128, 0, 0);
-            set_indicator_color(LED_SYS_THUMB, 128, 0, 0);
+            set_thumb_pair(INDICATOR_ON, 0, 0, INDICATOR_ON, 0, 0);
             break;
         default:
             break;

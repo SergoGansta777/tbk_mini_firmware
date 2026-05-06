@@ -113,11 +113,11 @@ This keeps maintenance actions off normal daily layers.
 The firmware uses a small set of LED indicators instead of full-board layer
 lighting:
 
-- `Nav` layer: the `Nav/Tab` thumb LED turns cyan
-- `System` layer: the `System/Caps Lock` thumb LED turns amber
+- `Nav` layer: the `Nav/Tab` thumb LED turns cyan and the opposite layer thumb glows dim cyan
+- `System` layer: the `System/Caps Lock` thumb LED turns amber and the opposite layer thumb glows dim amber
 - `Keyboard` layer: both layer-thumb LEDs turn red
 - `Caps Word`: both shift LEDs turn green
-- combos disabled on the base layer: both layer-thumb LEDs turn amber
+- combos disabled on the base layer: both layer-thumb LEDs turn purple
 
 This keeps the board readable without overriding your normal RGB preferences.
 
