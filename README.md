@@ -1,30 +1,236 @@
-# QMK Userspace
+# TBK Mini QMK Userspace
 
-This is a local QMK userspace for a TBK Mini on Splinky v3.
+This repository is the source of truth for the custom firmware of a BastardKB
+TBK Mini with Splinky v3 controllers.
 
-## Firmware base
+The goal of this repo is long-term maintainability:
 
-- firmware repo: `bastardkb-qmk` on `bkb-master`
-- userspace repo: this repository
-- custom keymap: `keyboards/bastardkb/tbkmini/keymaps/reshka`
+- keep personal firmware logic out of the vendor QMK tree
+- make recovery from a fresh machine straightforward
+- document the current keyboard behavior and design choices
+- keep build and flash steps reproducible
 
-## Local setup
+The actual custom keymap lives at:
 
-Point QMK at the BastardKB firmware tree and this external userspace:
+- `keyboards/bastardkb/tbkmini/keymaps/reshka`
+
+The build target is:
+
+- `bastardkb/tbkmini:reshka`
+
+## Hardware and Current Model
+
+- keyboard: BastardKB TBK Mini
+- controllers: Splinky v3 on both halves
+- firmware base: `bastardkb-qmk`
+- vendor branch: `bkb-master`
+- custom logic: this external userspace repo
+- runtime remapping: VIA
+- home-row mods: currently handled on macOS by a host-side app, not in firmware
+
+Important consequence:
+
+- firmware-side modifier overrides only see real firmware modifiers
+- host-generated modifiers from the macOS HRM app are not visible to QMK
+
+## Repositories
+
+This setup uses two repositories:
+
+1. Vendor firmware base
+   - expected repo: `https://github.com/Bastardkb/bastardkb-qmk.git`
+   - expected branch: `bkb-master`
+
+2. Personal userspace
+   - this repository
+   - stores the keymap, feature config, docs, and GitHub Actions workflow
+
+The vendor repo can always be recloned. This userspace repo is the important
+backup.
+
+Known local upstream state when this README was written:
+
+- firmware repo upstream remote: `origin -> https://github.com/Bastardkb/bastardkb-qmk.git`
+- known-good firmware base commit: `8f3b92fff27e6356120913a4ec6b21a017d0fef6`
+
+If BastardKB changes something upstream and a future build behaves differently,
+you can temporarily check out that exact commit in the vendor repo to reproduce
+the previously tested state.
+
+## Repository Layout
+
+- `README.md`
+  - machine-recovery, setup, build, and flash guide
+- `qmk.json`
+  - userspace build targets for QMK and GitHub Actions
+- `.github/workflows/build_binaries.yaml`
+  - builds firmware on push using BastardKB QMK on `bkb-master`
+- `keyboards/bastardkb/tbkmini/keymaps/reshka/keymap.c`
+  - layers, combos, key overrides, RGB indicators, and custom behavior
+- `keyboards/bastardkb/tbkmini/keymaps/reshka/config.h`
+  - tapping, combo, and feature config
+- `keyboards/bastardkb/tbkmini/keymaps/reshka/rules.mk`
+  - feature enables
+- `keyboards/bastardkb/tbkmini/keymaps/reshka/readme.md`
+  - detailed design notes for the current keymap
+
+## Cold-Start Recovery
+
+If your computer breaks or you reinstall everything, recover in this order.
+
+### 1. Install QMK CLI
+
+Install the QMK CLI and its normal build dependencies for your platform.
+
+Then verify the environment:
 
 ```sh
-qmk config user.qmk_home="/Users/0xse.reshka/Projects/Other/bastardkb-qmk"
-qmk config user.overlay_dir="/Users/0xse.reshka/Projects/Other/bastardkb-qmk-userspace"
+qmk doctor
 ```
 
-## Build
+### 2. Clone the vendor firmware repo
+
+Example:
 
 ```sh
-qmk compile -kb bastardkb/tbkmini -km reshka
+git clone https://github.com/Bastardkb/bastardkb-qmk.git ~/src/bastardkb-qmk
+cd ~/src/bastardkb-qmk
+git checkout bkb-master
 ```
 
-## Documentation
+If you need the known-tested upstream snapshot instead of current `bkb-master`:
 
-Keymap-specific documentation lives here:
+```sh
+git checkout 8f3b92fff27e6356120913a4ec6b21a017d0fef6
+```
+
+### 3. Clone this userspace repo
+
+Example:
+
+```sh
+git clone git@github.com:<your-user>/<your-userspace-repo>.git ~/src/bastardkb-qmk-userspace
+```
+
+### 4. Point QMK at both repos
+
+Set QMK to use the BastardKB repo as `qmk_home` and this repo as the overlay:
+
+```sh
+qmk config user.qmk_home="$HOME/src/bastardkb-qmk"
+qmk config user.overlay_dir="$HOME/src/bastardkb-qmk-userspace"
+```
+
+Current local values on the machine that produced this repo:
+
+```sh
+user.qmk_home=/Users/0xse.reshka/Projects/Other/bastardkb-qmk
+user.overlay_dir=/Users/0xse.reshka/Projects/Other/bastardkb-qmk-userspace
+```
+
+### 5. Build
+
+```sh
+qmk compile -c -kb bastardkb/tbkmini -km reshka
+```
+
+The generated UF2 is copied to the userspace root:
+
+- `bastardkb_tbkmini_reshka.uf2`
+
+### 6. Flash both halves
+
+Use the same UF2 on both halves.
+
+Recommended process:
+
+1. Build the firmware.
+2. Disconnect the halves from each other to reduce variables while flashing.
+3. Plug USB into one half.
+4. Double-press the bottom `UPDATE` button to enter the UF2 bootloader.
+5. Copy `bastardkb_tbkmini_reshka.uf2` to the `RPI-RP2` drive.
+6. Repeat on the other half with the same UF2.
+7. Reconnect the halves and use USB on the right half.
+
+## Daily Workflow
+
+When making changes later, use this order:
+
+1. Edit source in this userspace repo.
+2. Update docs if behavior changed.
+3. Compile.
+4. Flash both halves with the same UF2.
+5. Test the changed behavior.
+6. Commit in this userspace repo.
+
+## What To Edit
+
+Use these files deliberately:
+
+- `keymap.c`
+  - change layers, combos, overrides, indicators, and behavior
+- `config.h`
+  - change tapping terms, combo settings, and core feature flags
+- `rules.mk`
+  - enable or disable QMK features
+- `readme.md` inside the keymap directory
+  - update behavior and rationale when the keymap changes
+- `README.md` in the repo root
+  - update recovery, build, and flash instructions
+- `qmk.json`
+  - update build targets if you add more keyboards or keymaps
+
+## Current Workflow Rules
+
+These are intentional project rules, not accidents:
+
+1. Do not keep personal keymap logic in the vendor firmware repo.
+2. Keep BastardKB QMK as the base and this repo as the custom layer.
+3. Keep home-row mods out of firmware for now.
+4. Do not mix firmware HRMs and host-side HRMs at the same time.
+5. Use VIA for simple remaps only after the firmware structure is stable.
+6. Keep advanced behavior such as combos and layer logic in source control here.
+
+## Build and Test Checklist
+
+After a firmware change, test these in order:
+
+1. Base layer typing
+2. `Nav/Tab` thumb key
+3. `System/Caps` thumb key
+4. `Nav` layer movement and numbers
+5. `System` layer controls
+6. `Keyboard` tri-layer
+7. combos
+8. RGB indicators
+9. VIA detection
+
+Also remember:
+
+- `Shift + Backspace -> Delete` requires a real firmware Shift key
+- `Shift + Escape -> ~` also requires a real firmware Shift key
+- both-shifts can enable Caps Word
+
+## Updating Upstream Later
+
+When you want newer BastardKB/QMK changes:
+
+1. update the vendor firmware repo
+2. rebuild this userspace keymap against it
+3. test layers, combos, RGB, and overrides
+4. only then update docs or declare the new upstream state as good
+
+Do not bury vendor changes inside this userspace repo. Keep the separation clear.
+
+## CI
+
+The included GitHub Actions workflow builds this userspace against:
+
+- `bastardkb/bastardkb-qmk`
+- branch `bkb-master`
+
+## Related Documentation
+
+Detailed keymap behavior, layers, combos, and tuning notes live here:
 
 - `keyboards/bastardkb/tbkmini/keymaps/reshka/readme.md`

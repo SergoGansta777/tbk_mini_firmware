@@ -7,6 +7,9 @@ This keymap is a documented starting point for a TBK Mini on Splinky v3 using:
 - VIA for live remapping after the firmware structure is stable
 - macOS host-side home-row mods, not firmware home-row mods
 
+The root repo README is the recovery and operations guide. This file is the
+behavior and design guide for the current keymap.
+
 ## Design goals
 
 1. Keep the base layer simple and predictable.
@@ -22,6 +25,23 @@ This keymap is a documented starting point for a TBK Mini on Splinky v3 using:
 - `KEY_OVERRIDE_ENABLE`
 - `LAYER_LOCK_ENABLE`
 - `REPEAT_KEY_ENABLE`
+
+## Home-Row Mods Policy
+
+This keymap intentionally keeps the alpha home row plain.
+
+Current policy:
+
+- home-row mods are handled by the macOS HRM app, not by QMK
+- firmware does not use `MT()` or other alpha home-row tap-hold behavior
+- firmware-only modifier features see only real firmware modifiers
+
+Practical consequence:
+
+- `Shift + Backspace -> Delete` works only with a real firmware Shift key
+- `Shift + Escape -> ~` also works only with a real firmware Shift key
+- a host-generated Shift from the macOS HRM app is not visible to QMK as a
+  physical modifier press
 
 ## Tap-hold behavior
 
@@ -231,3 +251,21 @@ For Splinky v3:
 3. Double-press reset to enter the UF2 bootloader.
 4. Copy the generated `.uf2` onto the mounted drive.
 5. Repeat for the other half.
+
+## Where To Change Things Later
+
+- `keymap.c`
+  - layers, combos, key overrides, RGB indicators, and custom behavior
+- `config.h`
+  - tapping terms, combo timing defaults, Caps Word options, and core feature flags
+- `rules.mk`
+  - QMK feature enables
+- root `README.md`
+  - repo setup, recovery, build, and flash workflow
+
+## Future Work Notes
+
+If home-row mods ever move into firmware, treat that as a separate design
+project. Do not mix host-side HRMs and firmware HRMs at the same time in daily
+use, because it makes debugging tap-hold behavior and modifier-dependent
+features much harder.
