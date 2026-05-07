@@ -28,13 +28,14 @@ enum combo_names {
     C_K_L_TILD,
 };
 
-#define COMBO_TERM_ROLL   22
-#define COMBO_TERM_TIGHT  24
-#define COMBO_TERM_PAREN  26
-#define COMBO_TERM_CURLY  32
-#define COMBO_TERM_CROSS  38
-#define NAV_TAPPING_TERM  160
-#define SYS_TAPPING_TERM  170
+#define COMBO_TERM_MIN         26
+#define COMBO_TERM_MINUS       27
+#define COMBO_TERM_PAREN       28
+#define COMBO_TERM_RCBR        32
+#define COMBO_TERM_LCBR        34
+#define COMBO_TERM_CROSS_HAND  38
+#define NAV_TAPPING_TERM      160
+#define SYS_TAPPING_TERM      170
 #define LAYER_INDICATOR_DELAY 90
 
 #define NAV_TAB LT(L_NAV, KC_TAB)
@@ -145,25 +146,27 @@ combo_t key_combos[] = {
 uint16_t get_combo_term(uint16_t combo_index, combo_t *combo) {
     (void)combo;
 
-    // Keep roll-prone pairs strict; allow a little more room on the harder symbol chords.
+    // Keep all custom timings at or above 26 ms, then add room only where the chord
+    // is physically harder or unusually valuable.
     switch (combo_index) {
-        case C_V_B_LCBR:
-        case C_N_M_RCBR:
-            return COMBO_TERM_CURLY;
         case C_W_E_MINS:
+            return COMBO_TERM_MINUS;
+        case C_V_B_LCBR:
+            return COMBO_TERM_LCBR;
+        case C_N_M_RCBR:
+            return COMBO_TERM_RCBR;
         case C_E_R_PLUS:
         case C_U_I_UNDS:
         case C_I_O_PIPE:
         case C_S_D_GRV:
         case C_K_L_TILD:
-            return COMBO_TERM_ROLL;
         case C_D_F_QUOT:
         case C_J_K_DQUO:
-            return COMBO_TERM_TIGHT;
+            return COMBO_TERM_MIN;
         case C_R_T_LPRN:
             return COMBO_TERM_PAREN;
         case C_F_J_EQL:
-            return COMBO_TERM_CROSS;
+            return COMBO_TERM_CROSS_HAND;
         default:
             return COMBO_TERM;
     }

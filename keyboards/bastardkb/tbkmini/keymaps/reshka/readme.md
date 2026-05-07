@@ -28,7 +28,7 @@ This keymap is a documented starting point for a TBK Mini on Splinky v3 using:
 Only the two thumb layer-taps use tap-hold behavior:
 
 - left thumb center: `Tab` on tap, `Nav` on hold
-- right thumb outer: `Caps Lock` on tap, `System` on hold
+- right thumb center: `Caps Lock` on tap, `System` on hold
 
 `HOLD_ON_OTHER_KEY_PRESS_PER_KEY` is enabled only for those two keys. This makes
 the layer decision settle earlier when you chord the thumb key with another key,
@@ -61,6 +61,8 @@ Thumbs:
 
 - left: `Command`, `Nav/Tab`, `Space`
 - right: `Enter`, `System/Caps Lock`, `Backspace`
+
+The two momentary layer keys sit in the middle thumb positions on both halves.
 
 The base layer intentionally has no firmware home-row mods.
 
@@ -138,9 +140,11 @@ Combos are intentionally configured with a strict policy:
 - tap-only
 - `COMBO_STRICT_TIMER`
 - `30ms` default timing
-- stricter per-combo timings for common same-hand bigrams
+- a `26ms` floor for all custom per-combo timings
+- slightly stricter per-combo timings for common same-hand rolls
 - a small bump for `(`
-- a slightly looser timing for `{` and `}`
+- a tiny bump for `-`
+- a slightly looser timing for `{`, with `}` kept a bit tighter
 - slightly looser timing for the cross-hand `F + J` combo
 
 This keeps the combo set usable for fast typing while reducing accidental
@@ -166,17 +170,19 @@ triggers from normal rolls.
 
 ### Combo timing notes
 
-The following combos are stricter than the `30ms` default because they overlap
-with more plausible same-hand letter rolls:
+The following combos stay below the `30ms` default because they overlap with
+plausible same-hand rolls, but none of them now go below `26ms`:
 
-- `W + E`
 - `E + R`
 - `U + I`
 - `I + O`
 - `S + D`
 - `K + L`
 
-Quote combos are also slightly stricter:
+`W + E -> -` is still kept below the `30ms` default, but gets a small extra
+margin because it is a high-value programming combo.
+
+Quote combos now use the same `26ms` floor:
 
 - `D + F`
 - `J + K`
@@ -185,7 +191,9 @@ Quote combos are also slightly stricter:
 `30ms` default to keep accidental `rt` triggers in check.
 
 Curly brace combos are slightly looser than the `30ms` default because they are
-harder to chord cleanly on the TBK Mini's outer curl:
+harder to chord cleanly on the TBK Mini's outer curl. The opening `{` gets a
+little more room than `}` because it is the more valuable and harder-to-hit
+chord:
 
 - `V + B`
 - `N + M`
