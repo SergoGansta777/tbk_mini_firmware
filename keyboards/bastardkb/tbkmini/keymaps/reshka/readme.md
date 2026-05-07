@@ -41,6 +41,9 @@ Additional tuning for the two thumb layer keys:
 - `QUICK_TAP_TERM` is disabled for both keys so a fast tap-then-hold does not
   repeat `Tab` or `Caps Lock` instead of entering the layer
 
+Caps Word can also be entered by pressing both Shift keys together, with the
+`System` layer toggle kept as a fallback.
+
 ## Layer overview
 
 ### Layer 0: Base
@@ -136,7 +139,7 @@ number-entry and short nav taps do not flash in peripheral vision.
 - `Shift + Escape -> ~`
 
 The second override gives easy access to `~` without introducing a dedicated
-symbol layer.
+symbol layer, so a separate `~` combo is intentionally omitted.
 
 ## Combos
 
@@ -172,7 +175,6 @@ triggers from normal rolls.
 - `D + F -> '`
 - `J + K -> "`
 - `S + D -> backtick`
-- `K + L -> ~`
 
 ### Combo timing notes
 
@@ -183,7 +185,6 @@ plausible same-hand rolls, but none of them now go below `26ms`:
 - `U + I`
 - `I + O`
 - `S + D`
-- `K + L`
 
 `W + E -> -` is still kept below the `30ms` default, but gets a small extra
 margin because it is a high-value programming combo.

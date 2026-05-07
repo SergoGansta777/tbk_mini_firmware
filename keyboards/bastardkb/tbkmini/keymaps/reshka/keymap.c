@@ -25,7 +25,6 @@ enum combo_names {
     C_D_F_QUOT,
     C_J_K_DQUO,
     C_S_D_GRV,
-    C_K_L_TILD,
 };
 
 #define COMBO_TERM_MIN         26
@@ -124,7 +123,6 @@ static const uint16_t PROGMEM combo_io_pipe[] = {KC_I, KC_O, COMBO_END};
 static const uint16_t PROGMEM combo_df_quot[] = {KC_D, KC_F, COMBO_END};
 static const uint16_t PROGMEM combo_jk_dquo[] = {KC_J, KC_K, COMBO_END};
 static const uint16_t PROGMEM combo_sd_grv[]  = {KC_S, KC_D, COMBO_END};
-static const uint16_t PROGMEM combo_kl_tild[] = {KC_K, KC_L, COMBO_END};
 
 combo_t key_combos[] = {
     [C_R_T_LPRN] = COMBO(combo_rt_lprn, KC_LPRN),
@@ -141,7 +139,6 @@ combo_t key_combos[] = {
     [C_D_F_QUOT] = COMBO(combo_df_quot, KC_QUOT),
     [C_J_K_DQUO] = COMBO(combo_jk_dquo, KC_DQUO),
     [C_S_D_GRV]  = COMBO(combo_sd_grv, KC_GRV),
-    [C_K_L_TILD] = COMBO(combo_kl_tild, KC_TILD),
 };
 
 uint16_t get_combo_term(uint16_t combo_index, combo_t *combo) {
@@ -160,7 +157,6 @@ uint16_t get_combo_term(uint16_t combo_index, combo_t *combo) {
         case C_U_I_UNDS:
         case C_I_O_PIPE:
         case C_S_D_GRV:
-        case C_K_L_TILD:
         case C_D_F_QUOT:
         case C_J_K_DQUO:
             return COMBO_TERM_MIN;
