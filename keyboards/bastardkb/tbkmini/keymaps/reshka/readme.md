@@ -77,7 +77,7 @@ Left outer column, bottom to top:
 Right outer column, bottom to top:
 
 - `Right Shift`
-- `Semicolon`
+- `Quote`
 - `Backslash`
 
 Thumbs:
