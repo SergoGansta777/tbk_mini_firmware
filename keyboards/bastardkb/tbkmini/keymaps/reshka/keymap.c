@@ -202,8 +202,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [L_SYS] = LAYOUT_split_3x6_3(
         KC_F1,   KC_F2,     KC_F3,     KC_F4,      KC_F5,      KC_F6,      KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,
-        CW_TOGG, MAC_SPOT,  MAC_MCTL,  MAC_DESK_L, MAC_DESK_R, MAC_SSHOT,  KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD, KC_VOLU,
-        QK_LLCK, KC_BRID,   KC_BRIU,   KC_WBAK,    KC_WFWD,    XXXXXXX,    TAB_PREV, TAB_NEXT, G(KC_W), G(KC_T), G(KC_R), XXXXXXX,
+        XXXXXXX, MAC_SPOT,  MAC_MCTL,  MAC_DESK_L, MAC_DESK_R, MAC_SSHOT,  KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD, KC_VOLU,
+        QK_LLCK, KC_BRID,   KC_BRIU,   XXXXXXX,    XXXXXXX,    XXXXXXX,    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
         _______, _______,   _______,    _______,    _______,    _______
     ),
 

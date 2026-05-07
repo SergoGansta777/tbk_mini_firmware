@@ -105,6 +105,11 @@ Purpose:
 - screenshot shortcut
 - layer lock
 
+This layer is intentionally limited to machine-level controls: function keys,
+media, display brightness, and a small set of macOS workspace actions. App- and
+browser-specific shortcuts are left off this layer because they already live
+more naturally on your base workflow and host-side shortcuts.
+
 ### Layer 3: Keyboard
 
 This is a tri-layer that activates only while both `Nav` and `System` are held.
