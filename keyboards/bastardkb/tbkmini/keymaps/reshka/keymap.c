@@ -45,7 +45,8 @@ enum combo_names {
 #define MAC_CUT    G(KC_X)
 #define MAC_COPY   G(KC_C)
 #define MAC_PASTE  G(KC_V)
-#define MAC_REDO   G(S(KC_Z))
+#define MAC_DW_L   A(KC_BSPC)
+#define MAC_KILL   C(KC_K)
 #define MAC_FIND   G(KC_F)
 #define MAC_SPOT   G(KC_SPC)
 #define MAC_MCTL   C(KC_UP)
@@ -198,8 +199,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [L_NAV] = LAYOUT_split_3x6_3(
         QK_LLCK, KC_1,       KC_2,       KC_3,       KC_4,       KC_5,       KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_DEL,
-        G(KC_A), MAC_UNDO,   MAC_CUT,    MAC_COPY,   MAC_PASTE,  MAC_REDO,   KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, QK_REP,  QK_AREP,
-        QK_LLCK, A(KC_LEFT), A(KC_RGHT), G(KC_LEFT), G(KC_RGHT), MAC_FIND,   KC_HOME, KC_PGDN, KC_PGUP, KC_END,  TAB_PREV, TAB_NEXT,
+        MAC_CUT, MAC_UNDO,   MAC_DW_L,   MAC_COPY,   MAC_PASTE,  MAC_KILL,   KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, QK_REP,  QK_AREP,
+        XXXXXXX, A(KC_LEFT), A(KC_RGHT), G(KC_LEFT), G(KC_RGHT), MAC_FIND,   KC_HOME, KC_PGDN, KC_PGUP, KC_END,  TAB_PREV, TAB_NEXT,
         _______, _______,    _______,     _______,    _______,    _______
     ),
 

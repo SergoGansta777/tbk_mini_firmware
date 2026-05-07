@@ -79,11 +79,17 @@ Purpose:
 Layout logic:
 
 - top row: `1..0` and `Delete`
-- left hand: select all, undo, cut, copy, paste, redo
+- left home row: cut, undo, delete previous word, copy, paste, kill to end
 - right home row: arrows on `H J K L`
 - right edge: `Repeat` and `Alt Repeat`
 - bottom left: previous/next word, line start/end, find
 - bottom right: `Home`, `Page Down`, `Page Up`, `End`, previous/next tab
+
+This layer is intentionally biased toward movement and text editing rather than
+general application shortcuts. On macOS, `Option-Delete` removes the previous
+word and `Control-K` deletes from the cursor to the end of the line or
+paragraph, which makes them better Nav-layer residents than `Cmd-A` or a
+dedicated `Redo` slot for this workflow.
 
 ### Layer 2: System
 
