@@ -15,7 +15,7 @@ behavior and design guide for the current keymap.
 1. Keep the base layer simple and predictable.
 2. Keep firmware responsibilities separate from host-side home-row mods.
 3. Use a small number of modern QMK features with clear value.
-4. Make navigation and system control efficient without creating extra layers.
+4. Keep the layer model small while making navigation and system control more coherent.
 
 ## Enabled features
 
@@ -48,7 +48,7 @@ Practical consequence:
 Only the two thumb layer-taps use tap-hold behavior:
 
 - left thumb center: `Tab` on tap, `Nav` on hold
-- right thumb center: `Caps Lock` on tap, `System` on hold
+- right thumb center: `Caps Lock` on tap, `Num + System` on hold
 
 `HOLD_ON_OTHER_KEY_PRESS_PER_KEY` is enabled only for those two keys. This makes
 the layer decision settle earlier when you chord the thumb key with another key,
@@ -57,12 +57,11 @@ which is better for fast typing than waiting out the full tapping term.
 Additional tuning for the two thumb layer keys:
 
 - `Nav/Tab` uses a `160ms` tapping term
-- `System/Caps Lock` uses a `170ms` tapping term
+- `Num + System/Caps Lock` uses a `170ms` tapping term
 - `QUICK_TAP_TERM` is disabled for both keys so a fast tap-then-hold does not
   repeat `Tab` or `Caps Lock` instead of entering the layer
 
-Caps Word can also be entered by pressing both Shift keys together, with the
-`System` layer toggle kept as a fallback.
+Caps Word is entered by pressing both Shift keys together.
 
 ## Layer overview
 
@@ -83,66 +82,200 @@ Right outer column, bottom to top:
 Thumbs:
 
 - left: `Command`, `Nav/Tab`, `Space`
-- right: `Enter`, `System/Caps Lock`, `Backspace`
+- right: `Enter`, `Num + System/Caps Lock`, `Backspace`
 
 The two momentary layer keys sit in the middle thumb positions on both halves.
 
 The base layer intentionally has no firmware home-row mods.
 
-### Layer 1: Nav + Num
+### Layer 1: Nav
 
 Purpose:
 
-- numbers on the top row
+- vim-inspired navigation and search
 - `H J K L` arrows
-- macOS editing shortcuts
-- repeat and alternate repeat
+- repeat and alternate repeat as motion helpers
+- a small set of high-value edit actions
 - layer lock
 
 Layout logic:
 
-- top row: `1..0` and `Delete`
-- left home row: cut, undo, delete previous word, copy, paste, kill to end
-- right home row: arrows on `H J K L`
-- right edge: `Repeat` and `Alt Repeat`
-- bottom left: previous/next word, line start/end, find
-- bottom right: `Home`, `Page Down`, `Page Up`, `End`, previous/next tab
+- `H J K L` = arrows
+- `W` and `E` = next word
+- `B` = previous word
+- `A` = line end
+- `I` = line start
+- `G` = document end
+- `/` = find
+- `N` = next search result
+- `;` = `Repeat`
+- `'` = `Alt Repeat`
+- `Y`, `U`, `P` = copy, undo, paste
+- `S` = delete previous word
+- `D` = kill to end of line / paragraph
+- `,` and `.` = page up / page down
 
-This layer is intentionally biased toward movement and text editing rather than
-general application shortcuts. On macOS, `Option-Delete` removes the previous
-word and `Control-K` deletes from the cursor to the end of the line or
-paragraph, which makes them better Nav-layer residents than `Cmd-A` or a
-dedicated `Redo` slot for this workflow.
+This layer is intentionally vim-inspired, not a full Vim emulator. It borrows
+the strongest motion/search mnemonics that map cleanly to macOS shortcuts and
+leans on `Repeat` / `Alt Repeat` to supply the opposite direction where that is
+cleaner than spending extra keys.
 
-### Layer 2: System
+Important approximations:
+
+- `W` and `E` both map to forward word motion
+- `Alt Repeat` after `W` or `E` gives backward word motion
+- `Alt Repeat` after `N` gives previous search result
+- `Alt Repeat` after `A` gives line start
+- `Alt Repeat` after `G` gives document start
+
+This avoids pretending that generic macOS text fields can provide exact Vim
+semantics for things like distinct `w` vs `e` or true `0` vs `^`.
+
+### Layer 2: Num + System
 
 Purpose:
 
-- `F1..F12`
+- top-row numbers for programming and counts
+- `Delete`
 - media controls
 - brightness
-- desktop switching and Spotlight on macOS
+- Spotlight and Mission Control on macOS
 - screenshot shortcut
+- `F1..F12`
 - layer lock
 
 This layer is intentionally limited to machine-level controls: function keys,
-media, display brightness, and a small set of macOS workspace actions. App- and
-browser-specific shortcuts are left off this layer because they already live
-more naturally on your base workflow and host-side shortcuts.
+media, display brightness, and a small set of macOS workspace actions, with the
+number row restored to the right-thumb layer so `Nav` can stay focused on
+movement instead of carrying both jobs at once.
 
 ### Layer 3: Keyboard
 
-This is a tri-layer that activates only while both `Nav` and `System` are held.
+This is a tri-layer that activates only while both `Nav` and `Num + System` are
+held.
 
 Purpose:
 
 - bootloader access
 - EEPROM clear
-- RGB matrix controls
+- RGB matrix toggle
 - toggle key overrides
 - toggle combos
 
 This keeps maintenance actions off normal daily layers.
+
+## Layer usage guide
+
+### Base layer guide
+
+Use the base layer as a normal plain QWERTY layer.
+
+Important habits:
+
+- the alpha home row is intentionally dumb and reliable
+- left middle thumb = tap `Tab`, hold `Nav`
+- right middle thumb = tap `Caps Lock`, hold `Num + System`
+- `Shift + Backspace -> Delete` and `Shift + Escape -> ~` require a real
+  firmware Shift key, not a host-generated HRM Shift
+
+This layer is meant to stay low-drama so the more advanced behavior lives only
+on deliberate layer holds and combos.
+
+### Nav layer guide
+
+Hold the left middle thumb key to enter `Nav`.
+
+How to think about it:
+
+- right hand = cursor movement
+- left hand = word, line, document, and edit actions
+- `;` and `'` = continue or reverse the last motion idea
+
+Core motions:
+
+- `H J K L` = left, down, up, right
+- `W` or `E` = next word
+- `B` = previous word
+- `I` = line start
+- `A` = line end
+- `G` = document end
+- `,` / `.` = page up / page down
+
+Search flow:
+
+- `/` = find
+- `N` = next search result
+- `'` after `N` = previous search result
+- top-left outer key = `Layer Lock`
+
+Edit helpers:
+
+- `U` = undo
+- `Y` = copy
+- `P` = paste
+- `S` = delete previous word
+- `D` = kill to end of line / paragraph
+- top-right outer key = `Delete`
+
+Repeat flow:
+
+- `;` = `Repeat`
+- `'` = `Alt Repeat`
+
+This is what makes the layer feel more Vim-like without becoming modal:
+
+- `W`, then `'` = previous word
+- `A`, then `'` = line start
+- `G`, then `'` = document start
+- `N`, then `'` = previous search result
+
+Important limitation:
+
+- this is a generic macOS navigation layer, not true Vim state
+- it intentionally does not try to fake exact `^`, text objects, or operators
+- `W` and `E` are intentionally collapsed to the same forward-word action
+
+### Num + System layer guide
+
+Hold the right middle thumb key to enter `Num + System`.
+
+How to think about it:
+
+- top row = real number row
+- left side = machine controls
+- right side = media
+- bottom row = full `F1..F12`
+
+Practical layout:
+
+- top row = `1 2 3 4 5 6 7 8 9 0`
+- top-right outer key = `Delete`
+- top-left outer key = `Layer Lock`
+- left home row = brightness, Spotlight, Mission Control, screenshot
+- right home row = previous, play/pause, next, mute, volume down, volume up
+- bottom row = `F1..F12` in order
+
+This keeps numbers and shifted number symbols natural for programming while
+keeping system controls on the same deliberate right-thumb layer.
+
+### Keyboard layer guide
+
+Hold both middle thumb layer keys together to enter `Keyboard`.
+
+This layer is only for maintenance:
+
+- base `Tab` position = `QK_BOOT`
+- base `Q` position = `EE_CLR`
+- base `Esc` position = RGB toggle
+- base `;` position = key override toggle
+- base `'` position = combo toggle
+
+Use it when:
+
+- you need bootloader entry without touching the controller button
+- VIA remaps survived a reflash and you need `EE_CLR`
+- you want to temporarily disable combos or key overrides while debugging
+- you want to toggle RGB entirely on or off
 
 ## RGB status indicators
 
@@ -150,7 +283,7 @@ The firmware uses a small set of LED indicators instead of full-board layer
 lighting:
 
 - `Nav` layer: after a short hold delay, the `Nav/Tab` thumb LED turns cyan and the opposite layer thumb glows dim cyan
-- `System` layer: after a short hold delay, the `System/Caps Lock` thumb LED turns amber and the opposite layer thumb glows dim amber
+- `Num + System` layer: after a short hold delay, the `Num + System/Caps Lock` thumb LED turns amber and the opposite layer thumb glows dim amber
 - `Keyboard` layer: both layer-thumb LEDs turn red
 - `Caps Word`: both shift LEDs turn green
 - combos disabled on the base layer: both layer-thumb LEDs turn purple
@@ -251,6 +384,16 @@ For Splinky v3:
 3. Double-press reset to enter the UF2 bootloader.
 4. Copy the generated `.uf2` onto the mounted drive.
 5. Repeat for the other half.
+
+## EEPROM and VIA
+
+VIA remaps are stored in EEPROM, so they survive a normal reflash.
+
+If a flashed default layout does not seem to apply:
+
+1. hold both middle thumb layer keys to enter `Keyboard`
+2. press the physical `Q` position on the left half
+3. this triggers `EE_CLR` and resets persistent EEPROM state
 
 ## Where To Change Things Later
 

@@ -6,8 +6,13 @@
 enum layer_names {
     L_BASE,
     L_NAV,
-    L_SYS,
+    L_NUMSYS,
     L_KEYBOARD,
+};
+
+enum custom_keycodes {
+    NAV_FIND_NEXT = SAFE_RANGE,
+    NAV_FIND_PREV,
 };
 
 enum combo_names {
@@ -34,33 +39,33 @@ enum combo_names {
 #define COMBO_TERM_LCBR        34
 #define COMBO_TERM_CROSS_HAND  38
 #define NAV_TAPPING_TERM      160
-#define SYS_TAPPING_TERM      170
+#define NUMSYS_TAPPING_TERM   170
 #define LAYER_INDICATOR_DELAY 90
 
 #define NAV_TAB LT(L_NAV, KC_TAB)
-#define SYS_CAP LT(L_SYS, KC_CAPS)
+#define NUMSYS_CAP LT(L_NUMSYS, KC_CAPS)
 
 #define MAC_UNDO   G(KC_Z)
-#define MAC_CUT    G(KC_X)
 #define MAC_COPY   G(KC_C)
 #define MAC_PASTE  G(KC_V)
 #define MAC_DW_L   A(KC_BSPC)
 #define MAC_KILL   C(KC_K)
 #define MAC_FIND   G(KC_F)
+#define NAV_WORD_NEXT  A(KC_RGHT)
+#define NAV_WORD_PREV  A(KC_LEFT)
+#define NAV_LINE_START G(KC_LEFT)
+#define NAV_LINE_END   G(KC_RGHT)
+#define NAV_DOC_END    G(KC_DOWN)
 #define MAC_SPOT   G(KC_SPC)
 #define MAC_MCTL   C(KC_UP)
-#define MAC_DESK_L C(KC_LEFT)
-#define MAC_DESK_R C(KC_RGHT)
 #define MAC_SSHOT  G(S(KC_4))
-#define TAB_PREV   G(S(KC_LBRC))
-#define TAB_NEXT   G(S(KC_RBRC))
 
 #ifdef RGB_MATRIX_ENABLE
 enum indicator_leds {
-    LED_LEFT_SHIFT  = 2,
-    LED_NAV_THUMB   = 20,
-    LED_RIGHT_SHIFT = 38,
-    LED_SYS_THUMB   = 40,
+    LED_LEFT_SHIFT    = 2,
+    LED_NAV_THUMB     = 20,
+    LED_RIGHT_SHIFT   = 38,
+    LED_NUMSYS_THUMB  = 40,
 };
 
 enum indicator_brightness {
@@ -72,8 +77,8 @@ enum indicator_brightness {
 #endif
 
 #ifdef RGB_MATRIX_ENABLE
-static uint32_t nav_layer_timer = 0;
-static uint32_t sys_layer_timer = 0;
+static uint32_t nav_layer_timer    = 0;
+static uint32_t numsys_layer_timer = 0;
 #endif
 
 static const key_override_t delete_key_override = ko_make_basic(MOD_MASK_SHIFT, KC_BSPC, KC_DEL);
@@ -91,7 +96,7 @@ static uint8_t active_layer(void) {
 static bool is_thumb_layer_key(uint16_t keycode) {
     switch (keycode) {
         case NAV_TAB:
-        case SYS_CAP:
+        case NUMSYS_CAP:
             return true;
         default:
             return false;
@@ -102,8 +107,8 @@ static uint16_t thumb_layer_tapping_term(uint16_t keycode) {
     switch (keycode) {
         case NAV_TAB:
             return NAV_TAPPING_TERM;
-        case SYS_CAP:
-            return SYS_TAPPING_TERM;
+        case NUMSYS_CAP:
+            return NUMSYS_TAPPING_TERM;
         default:
             return TAPPING_TERM;
     }
@@ -185,55 +190,97 @@ bool combo_should_trigger(uint16_t combo_index, combo_t *combo, uint16_t keycode
     return active_layer() == L_BASE;
 }
 
+uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
+    (void)mods;
+
+    switch (keycode) {
+        // Keep search navigation symmetrical even though it is implemented as
+        // custom keycodes rather than plain modded basic keycodes.
+        case NAV_FIND_NEXT:
+            return NAV_FIND_PREV;
+        case NAV_FIND_PREV:
+            return NAV_FIND_NEXT;
+        default:
+            return KC_TRNS;
+    }
+}
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    if (!record->event.pressed) {
+        return true;
+    }
+
+    switch (keycode) {
+        case NAV_FIND_NEXT:
+            tap_code16(G(KC_G));
+            if (get_repeat_key_count() == 0) {
+                // Preserve the semantic key so Repeat/Alt Repeat continue to
+                // operate on "search next/prev" instead of the raw Cmd+G chord.
+                set_last_keycode(NAV_FIND_NEXT);
+                set_last_mods(0);
+            }
+            return false;
+        case NAV_FIND_PREV:
+            tap_code16(G(S(KC_G)));
+            if (get_repeat_key_count() == 0) {
+                set_last_keycode(NAV_FIND_PREV);
+                set_last_mods(0);
+            }
+            return false;
+        default:
+            return true;
+    }
+}
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [L_BASE] = LAYOUT_split_3x6_3(
         KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSLS,
         KC_ESC,  KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
         KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
-        KC_LGUI, NAV_TAB, KC_SPC,  KC_ENT,  SYS_CAP, KC_BSPC
+        KC_LGUI, NAV_TAB, KC_SPC,  KC_ENT,  NUMSYS_CAP, KC_BSPC
     ),
 
     [L_NAV] = LAYOUT_split_3x6_3(
-        QK_LLCK, KC_1,       KC_2,       KC_3,       KC_4,       KC_5,       KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_DEL,
-        MAC_CUT, MAC_UNDO,   MAC_DW_L,   MAC_COPY,   MAC_PASTE,  MAC_KILL,   KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, QK_REP,  QK_AREP,
-        XXXXXXX, A(KC_LEFT), A(KC_RGHT), G(KC_LEFT), G(KC_RGHT), MAC_FIND,   KC_HOME, KC_PGDN, KC_PGUP, KC_END,  TAB_PREV, TAB_NEXT,
-        _______, _______,    _______,     _______,    _______,    _______
+        QK_LLCK, XXXXXXX,      NAV_WORD_NEXT, NAV_WORD_NEXT, XXXXXXX, XXXXXXX,    MAC_COPY,      MAC_UNDO,   NAV_LINE_START, XXXXXXX,   MAC_PASTE, KC_DEL,
+        XXXXXXX, NAV_LINE_END, MAC_DW_L,     MAC_KILL,      XXXXXXX, NAV_DOC_END, KC_LEFT,       KC_DOWN,    KC_UP,          KC_RGHT,  QK_REP,    QK_AREP,
+        XXXXXXX, XXXXXXX,      XXXXXXX,       XXXXXXX,       XXXXXXX, NAV_WORD_PREV, NAV_FIND_NEXT, XXXXXXX, KC_PGUP,        KC_PGDN,  MAC_FIND,   XXXXXXX,
+        _______, _______,     _______,      _______,      _______,   _______
     ),
 
-    [L_SYS] = LAYOUT_split_3x6_3(
-        KC_F1,   KC_F2,     KC_F3,     KC_F4,      KC_F5,      KC_F6,      KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,
-        XXXXXXX, MAC_SPOT,  MAC_MCTL,  MAC_DESK_L, MAC_DESK_R, MAC_SSHOT,  KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD, KC_VOLU,
-        QK_LLCK, KC_BRID,   KC_BRIU,   XXXXXXX,    XXXXXXX,    XXXXXXX,    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-        _______, _______,   _______,    _______,    _______,    _______
+    [L_NUMSYS] = LAYOUT_split_3x6_3(
+        QK_LLCK, KC_1,      KC_2,     KC_3,     KC_4,      KC_5,      KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_DEL,
+        KC_BRID, KC_BRIU,   MAC_SPOT, MAC_MCTL, MAC_SSHOT, XXXXXXX,   KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD, KC_VOLU,
+        KC_F1,   KC_F2,     KC_F3,    KC_F4,    KC_F5,     KC_F6,     KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,
+        _______, _______,   _______,   _______,   _______,   _______
     ),
 
     [L_KEYBOARD] = LAYOUT_split_3x6_3(
         QK_BOOT, EE_CLR,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-        RM_TOGG, RM_HUEU, RM_SATU, RM_VALU, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KO_TOGG, CM_TOGG,
-        RM_NEXT, RM_HUED, RM_SATD, RM_VALD, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+        RM_TOGG, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KO_TOGG, CM_TOGG,
+        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
         _______, _______, _______, _______, _______, _______
     ),
 };
 
 layer_state_t layer_state_set_user(layer_state_t state) {
-    state = update_tri_layer_state(state, L_NAV, L_SYS, L_KEYBOARD);
+    state = update_tri_layer_state(state, L_NAV, L_NUMSYS, L_KEYBOARD);
 
 #ifdef RGB_MATRIX_ENABLE
-    static bool nav_was_on = false;
-    static bool sys_was_on = false;
+    static bool nav_was_on    = false;
+    static bool numsys_was_on = false;
 
-    bool nav_is_on = layer_state_cmp(state, L_NAV);
-    bool sys_is_on = layer_state_cmp(state, L_SYS);
+    bool nav_is_on    = layer_state_cmp(state, L_NAV);
+    bool numsys_is_on = layer_state_cmp(state, L_NUMSYS);
 
     if (nav_is_on && !nav_was_on) {
         nav_layer_timer = timer_read32();
     }
-    if (sys_is_on && !sys_was_on) {
-        sys_layer_timer = timer_read32();
+    if (numsys_is_on && !numsys_was_on) {
+        numsys_layer_timer = timer_read32();
     }
 
-    nav_was_on = nav_is_on;
-    sys_was_on = sys_is_on;
+    nav_was_on    = nav_is_on;
+    numsys_was_on = numsys_is_on;
 #endif
 
     return state;
@@ -269,7 +316,7 @@ static void set_thumb_pair(
     uint8_t right_blue
 ) {
     set_indicator_color(LED_NAV_THUMB, left_red, left_green, left_blue);
-    set_indicator_color(LED_SYS_THUMB, right_red, right_green, right_blue);
+    set_indicator_color(LED_NUMSYS_THUMB, right_red, right_green, right_blue);
 }
 
 bool rgb_matrix_indicators_user(void) {
@@ -292,8 +339,8 @@ bool rgb_matrix_indicators_user(void) {
                 set_thumb_pair(0, INDICATOR_MID, INDICATOR_ON, 0, INDICATOR_DIM, INDICATOR_DIM);
             }
             break;
-        case L_SYS:
-            if (timer_elapsed32(sys_layer_timer) >= LAYER_INDICATOR_DELAY) {
+        case L_NUMSYS:
+            if (timer_elapsed32(numsys_layer_timer) >= LAYER_INDICATOR_DELAY) {
                 set_thumb_pair(INDICATOR_DIM, INDICATOR_DIM / 2, INDICATOR_OFF, INDICATOR_ON, INDICATOR_MID, INDICATOR_OFF);
             }
             break;

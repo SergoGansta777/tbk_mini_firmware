@@ -152,6 +152,16 @@ Recommended process:
 6. Repeat on the other half with the same UF2.
 7. Reconnect the halves and use USB on the right half.
 
+### 7. Reset VIA and EEPROM if needed
+
+VIA remaps survive a normal reflash because they are stored in EEPROM.
+
+If the flashed default layout does not match what the board does:
+
+1. Hold both middle thumb layer keys to enter the `Keyboard` tri-layer.
+2. Press the left-half `Q` position.
+3. This triggers `EE_CLR` and wipes persistent EEPROM state, including VIA remaps.
+
 ## Daily Workflow
 
 When making changes later, use this order:
@@ -197,9 +207,9 @@ After a firmware change, test these in order:
 
 1. Base layer typing
 2. `Nav/Tab` thumb key
-3. `System/Caps` thumb key
-4. `Nav` layer movement and numbers
-5. `System` layer controls
+3. `Num + System/Caps` thumb key
+4. `Nav` layer movement, search, and repeat flow
+5. `Num + System` layer numbers, media, and `F1..F12`
 6. `Keyboard` tri-layer
 7. combos
 8. RGB indicators
