@@ -11,7 +11,9 @@ enum layer_names {
 };
 
 enum custom_keycodes {
-    NAV_FIND_NEXT = SAFE_RANGE,
+    NAV_FIND = SAFE_RANGE,
+    NAV_FIND_GLOBAL,
+    NAV_FIND_NEXT,
     NAV_FIND_PREV,
 };
 
@@ -50,7 +52,6 @@ enum combo_names {
 #define MAC_PASTE  G(KC_V)
 #define MAC_DW_L   A(KC_BSPC)
 #define MAC_KILL   C(KC_K)
-#define MAC_FIND   G(KC_F)
 #define NAV_WORD_NEXT  A(KC_RGHT)
 #define NAV_WORD_PREV  A(KC_LEFT)
 #define NAV_LINE_START G(KC_LEFT)
@@ -112,6 +113,18 @@ static uint16_t thumb_layer_tapping_term(uint16_t keycode) {
         default:
             return TAPPING_TERM;
     }
+}
+
+static void remember_semantic_repeat_key(uint16_t keycode) {
+    if (get_repeat_key_count() == 0) {
+        set_last_keycode(keycode);
+        set_last_mods(0);
+    }
+}
+
+static void run_nav_search(uint16_t keycode, uint16_t shortcut) {
+    tap_code16(shortcut);
+    remember_semantic_repeat_key(keycode);
 }
 
 static const uint16_t PROGMEM combo_rt_lprn[] = {KC_R, KC_T, COMBO_END};
@@ -194,6 +207,10 @@ uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
     (void)mods;
 
     switch (keycode) {
+        case NAV_FIND:
+            return NAV_FIND_GLOBAL;
+        case NAV_FIND_GLOBAL:
+            return NAV_FIND;
         // Keep search navigation symmetrical even though it is implemented as
         // custom keycodes rather than plain modded basic keycodes.
         case NAV_FIND_NEXT:
@@ -211,21 +228,41 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
 
     switch (keycode) {
-        case NAV_FIND_NEXT:
-            tap_code16(G(KC_G));
-            if (get_repeat_key_count() == 0) {
-                // Preserve the semantic key so Repeat/Alt Repeat continue to
-                // operate on "search next/prev" instead of the raw Cmd+G chord.
-                set_last_keycode(NAV_FIND_NEXT);
-                set_last_mods(0);
+        case NAV_FIND:
+            if ((get_mods() | get_weak_mods()) & MOD_MASK_SHIFT) {
+                // Preserve the semantic key so Alt Repeat can flip between
+                // local and global search instead of repeating raw chords.
+                run_nav_search(NAV_FIND_GLOBAL, G(S(KC_F)));
+            } else {
+                run_nav_search(NAV_FIND, G(KC_F));
             }
             return false;
+        case NAV_FIND_GLOBAL:
+            run_nav_search(NAV_FIND_GLOBAL, G(S(KC_F)));
+            return false;
+        case NAV_FIND_NEXT:
+            // Preserve the semantic key so Repeat/Alt Repeat continue to
+            // operate on "search next/prev" instead of the raw Cmd+G chord.
+            run_nav_search(NAV_FIND_NEXT, G(KC_G));
+            return false;
         case NAV_FIND_PREV:
-            tap_code16(G(S(KC_G)));
-            if (get_repeat_key_count() == 0) {
-                set_last_keycode(NAV_FIND_PREV);
-                set_last_mods(0);
-            }
+            run_nav_search(NAV_FIND_PREV, G(S(KC_G)));
+            return false;
+        default:
+            return true;
+    }
+}
+
+bool remember_last_key_user(uint16_t keycode, keyrecord_t *record, uint8_t *remembered_mods) {
+    (void)record;
+    (void)remembered_mods;
+
+    switch (keycode) {
+        // Keep Repeat/Alt Repeat biased toward motions and search, not toward
+        // clipboard actions or a bare forward delete.
+        case KC_DEL:
+        case MAC_COPY:
+        case MAC_PASTE:
             return false;
         default:
             return true;
@@ -243,7 +280,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [L_NAV] = LAYOUT_split_3x6_3(
         QK_LLCK, XXXXXXX,      NAV_WORD_NEXT, NAV_WORD_NEXT, XXXXXXX, XXXXXXX,    MAC_COPY,      MAC_UNDO,   NAV_LINE_START, XXXXXXX,   MAC_PASTE, KC_DEL,
         XXXXXXX, NAV_LINE_END, MAC_DW_L,     MAC_KILL,      XXXXXXX, NAV_DOC_END, KC_LEFT,       KC_DOWN,    KC_UP,          KC_RGHT,  QK_REP,    QK_AREP,
-        XXXXXXX, XXXXXXX,      XXXXXXX,       XXXXXXX,       XXXXXXX, NAV_WORD_PREV, NAV_FIND_NEXT, XXXXXXX, KC_PGUP,        KC_PGDN,  MAC_FIND,   XXXXXXX,
+        XXXXXXX, XXXXXXX,      XXXXXXX,       XXXXXXX,       XXXXXXX, NAV_WORD_PREV, NAV_FIND_NEXT, XXXXXXX, KC_PGUP,        KC_PGDN,  NAV_FIND,   XXXXXXX,
         _______, _______,     _______,      _______,      _______,   _______
     ),
 

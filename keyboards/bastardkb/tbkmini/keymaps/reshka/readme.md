@@ -107,6 +107,7 @@ Layout logic:
 - `I` = line start
 - `G` = document end
 - `/` = find
+- `Shift + /` = global / project search when using a real firmware Shift
 - `N` = next search result
 - `;` = `Repeat`
 - `'` = `Alt Repeat`
@@ -123,6 +124,7 @@ cleaner than spending extra keys.
 Important approximations:
 
 - `W` and `E` both map to forward word motion
+- `Alt Repeat` after `/` gives global / project search
 - `Alt Repeat` after `W` or `E` gives backward word motion
 - `Alt Repeat` after `N` gives previous search result
 - `Alt Repeat` after `A` gives line start
@@ -204,9 +206,21 @@ Core motions:
 Search flow:
 
 - `/` = find
+- `Shift + /` = global / project search when using a real firmware Shift
 - `N` = next search result
 - `'` after `N` = previous search result
+- `'` after `/` = global / project search
 - top-left outer key = `Layer Lock`
+
+Selection flow:
+
+- hold `Shift`, then use `H J K L` to extend by character / line direction
+- hold `Shift`, then use `W` or `E` to extend by next word
+- hold `Shift`, then use `B` to extend by previous word
+- hold `Shift`, then use `I` / `A` to extend to line start / line end
+- hold `Shift`, then use `G` to extend to document end
+- hold `Shift`, then use `,` / `.` to extend by page where the app supports it
+- keep holding `Shift`, then use `;` / `'` to continue or reverse the last motion
 
 Edit helpers:
 
@@ -229,11 +243,19 @@ This is what makes the layer feel more Vim-like without becoming modal:
 - `G`, then `'` = document start
 - `N`, then `'` = previous search result
 
+Repeat is intentionally motion-biased on this layer:
+
+- `Delete`, `Copy`, and `Paste` do not replace the remembered motion/search key
+- this keeps `;` and `'` acting more like navigation/search operators than
+  clipboard helpers
+
 Important limitation:
 
 - this is a generic macOS navigation layer, not true Vim state
 - it intentionally does not try to fake exact `^`, text objects, or operators
 - `W` and `E` are intentionally collapsed to the same forward-word action
+- if host-side HRM Shift does not combine reliably with `Nav` `/`, use `/` then
+  `Alt Repeat` instead of relying on `Shift + /`
 
 ### Num + System layer guide
 
