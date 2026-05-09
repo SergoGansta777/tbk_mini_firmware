@@ -8,6 +8,8 @@
 #define BOTH_SHIFTS_TURNS_ON_CAPS_WORD
 #define CAPS_WORD_IDLE_TIMEOUT 4000
 #define RGB_MATRIX_SLEEP
+// Sync layer/Caps Word/combo indicator state to the slave half for RGB.
+#define SPLIT_TRANSACTION_IDS_USER RPC_ID_USER_INDICATOR_SYNC
 
 #define COMBO_TERM 30
 #define EXTRA_SHORT_COMBOS

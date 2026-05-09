@@ -3,6 +3,10 @@
 
 #include QMK_KEYBOARD_H
 
+#if defined(SPLIT_KEYBOARD) && defined(RGB_MATRIX_ENABLE)
+#include "transactions.h"
+#endif
+
 enum layer_names {
     L_BASE,
     L_NAV,
@@ -62,13 +66,6 @@ enum combo_names {
 #define MAC_SSHOT  G(S(KC_4))
 
 #ifdef RGB_MATRIX_ENABLE
-enum indicator_leds {
-    LED_LEFT_SHIFT    = 2,
-    LED_NAV_THUMB     = 20,
-    LED_RIGHT_SHIFT   = 38,
-    LED_NUMSYS_THUMB  = 40,
-};
-
 enum indicator_brightness {
     INDICATOR_OFF = 0,
     INDICATOR_DIM = 20,
@@ -82,6 +79,22 @@ static uint32_t nav_layer_timer    = 0;
 static uint32_t numsys_layer_timer = 0;
 #endif
 
+#if defined(SPLIT_KEYBOARD) && defined(RGB_MATRIX_ENABLE)
+typedef struct {
+    uint8_t layer;
+    uint8_t caps_word_on;
+    uint8_t combo_enabled;
+} indicator_sync_t;
+
+// The slave half does not track these states locally, so RGB indicators need an
+// explicit sync payload from the master half.
+static indicator_sync_t indicator_state = {
+    .layer         = L_BASE,
+    .caps_word_on  = 0,
+    .combo_enabled = 1,
+};
+#endif
+
 static const key_override_t delete_key_override = ko_make_basic(MOD_MASK_SHIFT, KC_BSPC, KC_DEL);
 static const key_override_t tilde_esc_override  = ko_make_basic(MOD_MASK_SHIFT, KC_ESC, S(KC_GRV));
 
@@ -93,6 +106,76 @@ const key_override_t *const key_overrides[] = {
 static uint8_t active_layer(void) {
     return get_highest_layer(layer_state | default_layer_state);
 }
+
+#if defined(SPLIT_KEYBOARD) && defined(RGB_MATRIX_ENABLE)
+static bool combo_state_local(void) {
+#ifdef COMBO_ENABLE
+    return is_combo_enabled();
+#else
+    return true;
+#endif
+}
+
+static void refresh_indicator_timers(uint8_t previous_layer, uint8_t current_layer) {
+    if (previous_layer != L_NAV && current_layer == L_NAV) {
+        nav_layer_timer = timer_read32();
+    }
+    if (previous_layer != L_NUMSYS && current_layer == L_NUMSYS) {
+        numsys_layer_timer = timer_read32();
+    }
+}
+
+static void apply_indicator_state(const indicator_sync_t *state) {
+    refresh_indicator_timers(indicator_state.layer, state->layer);
+    indicator_state = *state;
+}
+
+static indicator_sync_t current_indicator_state(void) {
+    return (indicator_sync_t){
+        .layer         = active_layer(),
+        .caps_word_on  = is_caps_word_on(),
+        .combo_enabled = combo_state_local(),
+    };
+}
+
+static uint8_t indicator_layer(void) {
+    return indicator_state.layer;
+}
+
+static bool indicator_caps_word_on(void) {
+    return indicator_state.caps_word_on;
+}
+
+static bool indicator_combos_enabled(void) {
+    return indicator_state.combo_enabled;
+}
+
+static void indicator_sync_slave(uint8_t initiator2target_buffer_size, const void *initiator2target_buffer, uint8_t target2initiator_buffer_size, void *target2initiator_buffer) {
+    (void)target2initiator_buffer_size;
+    (void)target2initiator_buffer;
+
+    if (initiator2target_buffer_size == sizeof(indicator_sync_t)) {
+        apply_indicator_state((const indicator_sync_t *)initiator2target_buffer);
+    }
+}
+
+void keyboard_post_init_user(void) {
+    transaction_register_rpc(RPC_ID_USER_INDICATOR_SYNC, indicator_sync_slave);
+}
+
+void housekeeping_task_user(void) {
+    if (!is_keyboard_master()) {
+        return;
+    }
+
+    indicator_sync_t next_state = current_indicator_state();
+
+    if (memcmp(&indicator_state, &next_state, sizeof(next_state)) != 0) {
+        apply_indicator_state(&next_state);
+        transaction_rpc_send(RPC_ID_USER_INDICATOR_SYNC, sizeof(next_state), &next_state);
+    }
+}
+#endif
 
 static bool is_thumb_layer_key(uint16_t keycode) {
     switch (keycode) {
@@ -340,11 +423,19 @@ bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
 }
 
 #ifdef RGB_MATRIX_ENABLE
-static void set_indicator_color(uint8_t index, uint8_t red, uint8_t green, uint8_t blue) {
-    rgb_matrix_set_color(index, red, green, blue);
+static uint8_t led_index_for_key(uint8_t row, uint8_t col) {
+    return g_led_config.matrix_co[row][col];
+}
+
+static void set_indicator_color(uint8_t led_min, uint8_t led_max, uint8_t index, uint8_t red, uint8_t green, uint8_t blue) {
+    if (index != NO_LED && index >= led_min && index < led_max) {
+        rgb_matrix_set_color(index, red, green, blue);
+    }
 }
 
 static void set_thumb_pair(
+    uint8_t led_min,
+    uint8_t led_max,
     uint8_t left_red,
     uint8_t left_green,
     uint8_t left_blue,
@@ -352,37 +443,53 @@ static void set_thumb_pair(
     uint8_t right_green,
     uint8_t right_blue
 ) {
-    set_indicator_color(LED_NAV_THUMB, left_red, left_green, left_blue);
-    set_indicator_color(LED_NUMSYS_THUMB, right_red, right_green, right_blue);
+    set_indicator_color(led_min, led_max, led_index_for_key(3, 4), left_red, left_green, left_blue);
+    set_indicator_color(led_min, led_max, led_index_for_key(7, 4), right_red, right_green, right_blue);
 }
 
-bool rgb_matrix_indicators_user(void) {
+bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     uint8_t layer = active_layer();
 
-    if (is_caps_word_on()) {
-        set_indicator_color(LED_LEFT_SHIFT, 0, INDICATOR_ON, 40);
-        set_indicator_color(LED_RIGHT_SHIFT, 0, INDICATOR_ON, 40);
+#if defined(SPLIT_KEYBOARD)
+    layer = indicator_layer();
+#endif
+
+    if (
+#if defined(SPLIT_KEYBOARD)
+        indicator_caps_word_on()
+#else
+        is_caps_word_on()
+#endif
+    ) {
+        set_indicator_color(led_min, led_max, led_index_for_key(2, 0), 0, INDICATOR_ON, 40);
+        set_indicator_color(led_min, led_max, led_index_for_key(6, 0), 0, INDICATOR_ON, 40);
     }
 
 #ifdef COMBO_ENABLE
-    if (layer == L_BASE && !is_combo_enabled()) {
-        set_thumb_pair(INDICATOR_MID, 0, INDICATOR_MID, INDICATOR_MID, 0, INDICATOR_MID);
+    if (layer == L_BASE && !
+#if defined(SPLIT_KEYBOARD)
+        indicator_combos_enabled()
+#else
+        is_combo_enabled()
+#endif
+    ) {
+        set_thumb_pair(led_min, led_max, INDICATOR_MID, 0, INDICATOR_MID, INDICATOR_MID, 0, INDICATOR_MID);
     }
 #endif
 
     switch (layer) {
         case L_NAV:
             if (timer_elapsed32(nav_layer_timer) >= LAYER_INDICATOR_DELAY) {
-                set_thumb_pair(0, INDICATOR_MID, INDICATOR_ON, 0, INDICATOR_DIM, INDICATOR_DIM);
+                set_thumb_pair(led_min, led_max, 0, INDICATOR_MID, INDICATOR_ON, INDICATOR_OFF, INDICATOR_OFF, INDICATOR_OFF);
             }
             break;
         case L_NUMSYS:
             if (timer_elapsed32(numsys_layer_timer) >= LAYER_INDICATOR_DELAY) {
-                set_thumb_pair(INDICATOR_DIM, INDICATOR_DIM / 2, INDICATOR_OFF, INDICATOR_ON, INDICATOR_MID, INDICATOR_OFF);
+                set_thumb_pair(led_min, led_max, INDICATOR_DIM, INDICATOR_DIM / 2, INDICATOR_OFF, INDICATOR_ON, INDICATOR_MID, INDICATOR_OFF);
             }
             break;
         case L_KEYBOARD:
-            set_thumb_pair(INDICATOR_ON, 0, 0, INDICATOR_ON, 0, 0);
+            set_thumb_pair(led_min, led_max, INDICATOR_ON, 0, 0, INDICATOR_ON, 0, 0);
             break;
         default:
             break;
