@@ -28,22 +28,17 @@ enum combo_names {
     C_H_J_RBRC,
     C_V_B_LCBR,
     C_N_M_RCBR,
+    C_D_F_MINS,
+    C_D_K_UNDS,
     C_F_J_EQL,
-    C_W_E_MINS,
-    C_E_R_PLUS,
-    C_U_I_UNDS,
-    C_I_O_PIPE,
-    C_D_F_QUOT,
-    C_J_K_DQUO,
+    C_J_K_PLUS,
     C_S_D_GRV,
 };
 
 #define COMBO_TERM_MIN         26
-#define COMBO_TERM_MINUS       27
 #define COMBO_TERM_PAREN       28
 #define COMBO_TERM_RCBR        32
-#define COMBO_TERM_LCBR        34
-#define COMBO_TERM_CROSS_HAND  38
+#define COMBO_TERM_RELAXED     34
 #define NAV_TAPPING_TERM      160
 #define NUMSYS_TAPPING_TERM   170
 #define LAYER_INDICATOR_DELAY 90
@@ -216,13 +211,10 @@ static const uint16_t PROGMEM combo_fg_lbrc[] = {KC_F, KC_G, COMBO_END};
 static const uint16_t PROGMEM combo_hj_rbrc[] = {KC_H, KC_J, COMBO_END};
 static const uint16_t PROGMEM combo_vb_lcbr[] = {KC_V, KC_B, COMBO_END};
 static const uint16_t PROGMEM combo_nm_rcbr[] = {KC_N, KC_M, COMBO_END};
+static const uint16_t PROGMEM combo_df_mins[] = {KC_D, KC_F, COMBO_END};
+static const uint16_t PROGMEM combo_dk_unds[] = {KC_D, KC_K, COMBO_END};
 static const uint16_t PROGMEM combo_fj_eql[]  = {KC_F, KC_J, COMBO_END};
-static const uint16_t PROGMEM combo_we_mins[] = {KC_W, KC_E, COMBO_END};
-static const uint16_t PROGMEM combo_er_plus[] = {KC_E, KC_R, COMBO_END};
-static const uint16_t PROGMEM combo_ui_unds[] = {KC_U, KC_I, COMBO_END};
-static const uint16_t PROGMEM combo_io_pipe[] = {KC_I, KC_O, COMBO_END};
-static const uint16_t PROGMEM combo_df_quot[] = {KC_D, KC_F, COMBO_END};
-static const uint16_t PROGMEM combo_jk_dquo[] = {KC_J, KC_K, COMBO_END};
+static const uint16_t PROGMEM combo_jk_plus[] = {KC_J, KC_K, COMBO_END};
 static const uint16_t PROGMEM combo_sd_grv[]  = {KC_S, KC_D, COMBO_END};
 
 combo_t key_combos[] = {
@@ -232,13 +224,10 @@ combo_t key_combos[] = {
     [C_H_J_RBRC] = COMBO(combo_hj_rbrc, KC_RBRC),
     [C_V_B_LCBR] = COMBO(combo_vb_lcbr, KC_LCBR),
     [C_N_M_RCBR] = COMBO(combo_nm_rcbr, KC_RCBR),
+    [C_D_F_MINS] = COMBO(combo_df_mins, KC_MINS),
+    [C_D_K_UNDS] = COMBO(combo_dk_unds, KC_UNDS),
     [C_F_J_EQL]  = COMBO(combo_fj_eql, KC_EQL),
-    [C_W_E_MINS] = COMBO(combo_we_mins, KC_MINS),
-    [C_E_R_PLUS] = COMBO(combo_er_plus, KC_PLUS),
-    [C_U_I_UNDS] = COMBO(combo_ui_unds, KC_UNDS),
-    [C_I_O_PIPE] = COMBO(combo_io_pipe, KC_PIPE),
-    [C_D_F_QUOT] = COMBO(combo_df_quot, KC_QUOT),
-    [C_J_K_DQUO] = COMBO(combo_jk_dquo, KC_DQUO),
+    [C_J_K_PLUS] = COMBO(combo_jk_plus, KC_PLUS),
     [C_S_D_GRV]  = COMBO(combo_sd_grv, KC_GRV),
 };
 
@@ -248,23 +237,19 @@ uint16_t get_combo_term(uint16_t combo_index, combo_t *combo) {
     // Keep all custom timings at or above 26 ms, then add room only where the chord
     // is physically harder or unusually valuable.
     switch (combo_index) {
-        case C_W_E_MINS:
-            return COMBO_TERM_MINUS;
         case C_V_B_LCBR:
-            return COMBO_TERM_LCBR;
+        case C_D_F_MINS:
+        case C_J_K_PLUS:
+            return COMBO_TERM_MIN;
+        case C_D_K_UNDS:
+        case C_F_J_EQL:
+            return COMBO_TERM_RELAXED;
         case C_N_M_RCBR:
             return COMBO_TERM_RCBR;
-        case C_E_R_PLUS:
-        case C_U_I_UNDS:
-        case C_I_O_PIPE:
         case C_S_D_GRV:
-        case C_D_F_QUOT:
-        case C_J_K_DQUO:
             return COMBO_TERM_MIN;
         case C_R_T_LPRN:
             return COMBO_TERM_PAREN;
-        case C_F_J_EQL:
-            return COMBO_TERM_CROSS_HAND;
         default:
             return COMBO_TERM;
     }

@@ -333,11 +333,10 @@ Combos are intentionally configured with a strict policy:
 - `COMBO_STRICT_TIMER`
 - `30ms` default timing
 - a `26ms` floor for all custom per-combo timings
-- slightly stricter per-combo timings for common same-hand rolls
+- same-hand combos kept only where they are clearly worth it
 - a small bump for `(`
-- a tiny bump for `-`
+- a relaxed timing bucket only for the two operator chords that still benefit from it
 - a slightly looser timing for `{`, with `}` kept a bit tighter
-- slightly looser timing for the cross-hand `F + J` combo
 
 This keeps the combo set usable for fast typing while reducing accidental
 triggers from normal rolls.
@@ -350,34 +349,33 @@ triggers from normal rolls.
 - `H + J -> ]`
 - `V + B -> {`
 - `N + M -> }`
+- `D + F -> -`
+- `D + K -> _`
 - `F + J -> =`
-- `W + E -> -`
-- `E + R -> +`
-- `U + I -> _`
-- `I + O -> |`
-- `D + F -> '`
-- `J + K -> "`
+- `J + K -> +`
 - `S + D -> backtick`
+
+### Operator mnemonic
+
+The operator combos now use the freed home-row slots and keep the two shifted
+variants close to their base symbol:
+
+- `D + F -> -`
+- `D + K -> _`
+- `F + J -> =`
+- `J + K -> +`
+
+This keeps `-` and `+` on easy adjacent same-hand chords, while `_` and `=` stay
+on their stronger dedicated shapes.
 
 ### Combo timing notes
 
-The following combos stay below the `30ms` default because they overlap with
-plausible same-hand rolls, but none of them now go below `26ms`:
+Only two combos stay meaningfully tighter than the `30ms` default:
 
-- `E + R`
-- `U + I`
-- `I + O`
 - `S + D`
+- `R + T`
 
-`W + E -> -` is still kept below the `30ms` default, but gets a small extra
-margin because it is a high-value programming combo.
-
-Quote combos now use the same `26ms` floor:
-
-- `D + F`
-- `J + K`
-
-`R + T -> (` is slightly looser than the quote combos, but still below the
+`R + T -> (` is kept below the
 `30ms` default to keep accidental `rt` triggers in check.
 
 Curly brace combos are slightly looser than the `30ms` default because they are
@@ -388,8 +386,11 @@ chord:
 - `V + B`
 - `N + M`
 
-`F + J -> =` is slightly looser because it is a same-position cross-hand combo
-and is much less likely to appear accidentally in normal typing.
+The cross-hand operator box uses a more relaxed timing bucket because those
+operator chords are more deliberate and physically cleaner on this board:
+
+- `D + K`
+- `F + J`
 
 ## Build
 
