@@ -47,8 +47,8 @@ Practical consequence:
 
 Only the two thumb layer-taps use tap-hold behavior:
 
-- left thumb center: `Tab` on tap, `Nav` on hold
-- right thumb center: `Caps Lock` on tap, `Num + System` on hold
+- left thumb center: `Caps Lock` on tap, `Nav` on hold
+- right thumb center: `Tab` on tap, `Num + System` on hold
 
 `HOLD_ON_OTHER_KEY_PRESS_PER_KEY` is enabled only for those two keys. This makes
 the layer decision settle earlier when you chord the thumb key with another key,
@@ -56,10 +56,10 @@ which is better for fast typing than waiting out the full tapping term.
 
 Additional tuning for the two thumb layer keys:
 
-- `Nav/Tab` uses a `160ms` tapping term
-- `Num + System/Caps Lock` uses a `170ms` tapping term
+- `Nav/Caps Lock` uses a `160ms` tapping term
+- `Num + System/Tab` uses a `170ms` tapping term
 - `QUICK_TAP_TERM` is disabled for both keys so a fast tap-then-hold does not
-  repeat `Tab` or `Caps Lock` instead of entering the layer
+  repeat `Caps Lock` or `Tab` instead of entering the layer
 
 Caps Word is entered by pressing both Shift keys together.
 
@@ -81,8 +81,8 @@ Right outer column, bottom to top:
 
 Thumbs:
 
-- left: `Command`, `Nav/Tab`, `Space`
-- right: `Enter`, `Num + System/Caps Lock`, `Backspace`
+- left: `Command`, `Nav/Caps Lock`, `Space`
+- right: `Enter`, `Num + System/Tab`, `Backspace`
 
 The two momentary layer keys sit in the middle thumb positions on both halves.
 
@@ -175,8 +175,8 @@ Use the base layer as a normal plain QWERTY layer.
 Important habits:
 
 - the alpha home row is intentionally dumb and reliable
-- left middle thumb = tap `Tab`, hold `Nav`
-- right middle thumb = tap `Caps Lock`, hold `Num + System`
+- left middle thumb = tap `Caps Lock`, hold `Nav`
+- right middle thumb = tap `Tab`, hold `Num + System`
 - `Shift + Backspace -> Delete` and `Shift + Escape -> ~` require a real
   firmware Shift key, not a host-generated HRM Shift
 
@@ -304,8 +304,8 @@ Use it when:
 The firmware uses a small set of LED indicators instead of full-board layer
 lighting:
 
-- `Nav` layer: after a short hold delay, only the `Nav/Tab` thumb LED turns blue/cyan
-- `Num + System` layer: after a short hold delay, the `Num + System/Caps Lock` thumb LED turns amber and the opposite layer thumb glows dim amber
+- `Nav` layer: after a short hold delay, only the `Nav/Caps Lock` thumb LED turns blue/cyan
+- `Num + System` layer: after a short hold delay, the `Num + System/Tab` thumb LED turns amber and the opposite layer thumb glows dim amber
 - `Keyboard` layer: both layer-thumb LEDs turn red
 - `Caps Word`: both shift LEDs turn green
 - combos disabled on the base layer: both layer-thumb LEDs turn purple

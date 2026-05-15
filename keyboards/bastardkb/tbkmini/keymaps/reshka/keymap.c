@@ -48,8 +48,8 @@ enum combo_names {
 #define NUMSYS_TAPPING_TERM   170
 #define LAYER_INDICATOR_DELAY 90
 
-#define NAV_TAB LT(L_NAV, KC_TAB)
-#define NUMSYS_CAP LT(L_NUMSYS, KC_CAPS)
+#define NAV_CAP    LT(L_NAV, KC_CAPS)
+#define NUMSYS_TAB LT(L_NUMSYS, KC_TAB)
 
 #define MAC_UNDO   G(KC_Z)
 #define MAC_COPY   G(KC_C)
@@ -179,8 +179,8 @@ void housekeeping_task_user(void) {
 
 static bool is_thumb_layer_key(uint16_t keycode) {
     switch (keycode) {
-        case NAV_TAB:
-        case NUMSYS_CAP:
+        case NAV_CAP:
+        case NUMSYS_TAB:
             return true;
         default:
             return false;
@@ -189,9 +189,9 @@ static bool is_thumb_layer_key(uint16_t keycode) {
 
 static uint16_t thumb_layer_tapping_term(uint16_t keycode) {
     switch (keycode) {
-        case NAV_TAB:
+        case NAV_CAP:
             return NAV_TAPPING_TERM;
-        case NUMSYS_CAP:
+        case NUMSYS_TAB:
             return NUMSYS_TAPPING_TERM;
         default:
             return TAPPING_TERM;
@@ -357,7 +357,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSLS,
         KC_ESC,  KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
         KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
-        KC_LGUI, NAV_TAB, KC_SPC,  KC_ENT,  NUMSYS_CAP, KC_BSPC
+        KC_LGUI, NAV_CAP, KC_SPC,  KC_ENT,  NUMSYS_TAB, KC_BSPC
     ),
 
     [L_NAV] = LAYOUT_split_3x6_3(
