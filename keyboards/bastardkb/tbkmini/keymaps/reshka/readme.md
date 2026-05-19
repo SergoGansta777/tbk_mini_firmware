@@ -81,10 +81,12 @@ Right outer column, bottom to top:
 
 Thumbs:
 
-- left: `Command`, `Nav/Caps Lock`, `Space`
+- left: `Hyper`, `Nav/Caps Lock`, `Space`
 - right: `Enter`, `Num + System/Tab`, `Backspace`
 
 The two momentary layer keys sit in the middle thumb positions on both halves.
+The left outer thumb is intentionally a practical `Fn`/window-management key
+for macOS shortcuts and tools like Swish, not a real Apple `Fn`.
 
 The base layer intentionally has no firmware home-row mods.
 
@@ -267,6 +269,7 @@ How to think about it:
 - left side = machine controls
 - right side = media
 - bottom row = full `F1..F12`
+- left outer thumb = temporary `Gui/Command`
 
 Practical layout:
 
@@ -276,9 +279,11 @@ Practical layout:
 - left home row = brightness, Spotlight, Mission Control, screenshot
 - right home row = previous, play/pause, next, mute, volume down, volume up
 - bottom row = `F1..F12` in order
+- left outer thumb = real `Gui/Command` while this layer is held
 
 This keeps numbers and shifted number symbols natural for programming while
-keeping system controls on the same deliberate right-thumb layer.
+keeping system controls on the same deliberate right-thumb layer, while still
+giving you a plain `Cmd` key when you need one inside the utility layer.
 
 ### Keyboard layer guide
 
