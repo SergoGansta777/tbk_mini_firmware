@@ -97,7 +97,6 @@ Purpose:
 - vim-inspired navigation and search
 - `H J K L` arrows
 - repeat and alternate repeat as motion helpers
-- thumb-driven macOS app and window switching
 - a small set of high-value edit actions
 - layer lock
 
@@ -114,7 +113,6 @@ Layout logic:
 - `N` = next search result
 - `;` = `Repeat`
 - `'` = `Alt Repeat`
-- right thumb cluster = previous app, next window in current app, next app
 - `Y`, `U`, `P` = copy, undo, paste
 - `S` = delete previous word
 - `D` = kill to end of line / paragraph
@@ -131,7 +129,6 @@ Important approximations:
 - `Alt Repeat` after `/` gives global / project search
 - `Alt Repeat` after `W` or `E` gives backward word motion
 - `Alt Repeat` after `N` gives previous search result
-- `Alt Repeat` after the window-switch thumb key gives previous window
 - `Alt Repeat` after `A` gives line start
 - `Alt Repeat` after `G` gives document start
 
@@ -197,7 +194,6 @@ How to think about it:
 - right hand = cursor movement
 - left hand = word, line, document, and edit actions
 - `;` and `'` = continue or reverse the last motion idea
-- right thumb cluster = previous app, current-app window switch, next app
 
 Core motions:
 
@@ -217,13 +213,6 @@ Search flow:
 - `'` after `N` = previous search result
 - `'` after `/` = global / project search
 - top-left outer key = `Layer Lock`
-
-App and window switching:
-
-- right thumb left = previous app (`Shift + Cmd + Tab`)
-- right thumb middle = next window in current app (`Cmd + backtick`)
-- right thumb right = next app (`Cmd + Tab`)
-- `'` after the middle thumb key = previous window in the current app
 
 Selection flow:
 
@@ -255,7 +244,6 @@ This is what makes the layer feel more Vim-like without becoming modal:
 - `A`, then `'` = line start
 - `G`, then `'` = document start
 - `N`, then `'` = previous search result
-- right thumb middle, then `'` = previous window in the current app
 
 Repeat is intentionally motion-biased on this layer:
 

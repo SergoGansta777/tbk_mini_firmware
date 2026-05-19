@@ -19,10 +19,6 @@ enum custom_keycodes {
     NAV_FIND_GLOBAL,
     NAV_FIND_NEXT,
     NAV_FIND_PREV,
-    NAV_APP_NEXT,
-    NAV_APP_PREV,
-    NAV_WIN_NEXT,
-    NAV_WIN_PREV,
 };
 
 enum combo_names {
@@ -60,10 +56,6 @@ enum combo_names {
 #define NAV_LINE_START G(KC_LEFT)
 #define NAV_LINE_END   G(KC_RGHT)
 #define NAV_DOC_END    G(KC_DOWN)
-#define MAC_APP_NEXT   G(KC_TAB)
-#define MAC_APP_PREV   G(S(KC_TAB))
-#define MAC_WIN_NEXT   G(KC_GRV)
-#define MAC_WIN_PREV   G(S(KC_GRV))
 #define MAC_SPOT   G(KC_SPC)
 #define MAC_MCTL   C(KC_UP)
 #define MAC_SSHOT  G(S(KC_4))
@@ -208,7 +200,7 @@ static void remember_semantic_repeat_key(uint16_t keycode) {
     }
 }
 
-static void run_semantic_shortcut(uint16_t keycode, uint16_t shortcut) {
+static void run_nav_search(uint16_t keycode, uint16_t shortcut) {
     tap_code16(shortcut);
     remember_semantic_repeat_key(keycode);
 }
@@ -293,14 +285,6 @@ uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
             return NAV_FIND_PREV;
         case NAV_FIND_PREV:
             return NAV_FIND_NEXT;
-        case NAV_APP_NEXT:
-            return NAV_APP_PREV;
-        case NAV_APP_PREV:
-            return NAV_APP_NEXT;
-        case NAV_WIN_NEXT:
-            return NAV_WIN_PREV;
-        case NAV_WIN_PREV:
-            return NAV_WIN_NEXT;
         default:
             return KC_TRNS;
     }
@@ -316,33 +300,21 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if ((get_mods() | get_weak_mods()) & MOD_MASK_SHIFT) {
                 // Preserve the semantic key so Alt Repeat can flip between
                 // local and global search instead of repeating raw chords.
-                run_semantic_shortcut(NAV_FIND_GLOBAL, G(S(KC_F)));
+                run_nav_search(NAV_FIND_GLOBAL, G(S(KC_F)));
             } else {
-                run_semantic_shortcut(NAV_FIND, G(KC_F));
+                run_nav_search(NAV_FIND, G(KC_F));
             }
             return false;
         case NAV_FIND_GLOBAL:
-            run_semantic_shortcut(NAV_FIND_GLOBAL, G(S(KC_F)));
+            run_nav_search(NAV_FIND_GLOBAL, G(S(KC_F)));
             return false;
         case NAV_FIND_NEXT:
             // Preserve the semantic key so Repeat/Alt Repeat continue to
             // operate on "search next/prev" instead of the raw Cmd+G chord.
-            run_semantic_shortcut(NAV_FIND_NEXT, G(KC_G));
+            run_nav_search(NAV_FIND_NEXT, G(KC_G));
             return false;
         case NAV_FIND_PREV:
-            run_semantic_shortcut(NAV_FIND_PREV, G(S(KC_G)));
-            return false;
-        case NAV_APP_NEXT:
-            run_semantic_shortcut(NAV_APP_NEXT, MAC_APP_NEXT);
-            return false;
-        case NAV_APP_PREV:
-            run_semantic_shortcut(NAV_APP_PREV, MAC_APP_PREV);
-            return false;
-        case NAV_WIN_NEXT:
-            run_semantic_shortcut(NAV_WIN_NEXT, MAC_WIN_NEXT);
-            return false;
-        case NAV_WIN_PREV:
-            run_semantic_shortcut(NAV_WIN_PREV, MAC_WIN_PREV);
+            run_nav_search(NAV_FIND_PREV, G(S(KC_G)));
             return false;
         default:
             return true;
@@ -377,7 +349,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         QK_LLCK, XXXXXXX,      NAV_WORD_NEXT, NAV_WORD_NEXT, XXXXXXX, XXXXXXX,    MAC_COPY,      MAC_UNDO,   NAV_LINE_START, XXXXXXX,   MAC_PASTE, KC_DEL,
         XXXXXXX, NAV_LINE_END, MAC_DW_L,     MAC_KILL,      XXXXXXX, NAV_DOC_END, KC_LEFT,       KC_DOWN,    KC_UP,          KC_RGHT,  QK_REP,    QK_AREP,
         XXXXXXX, XXXXXXX,      XXXXXXX,       XXXXXXX,       XXXXXXX, NAV_WORD_PREV, NAV_FIND_NEXT, XXXXXXX, KC_PGUP,        KC_PGDN,  NAV_FIND,   XXXXXXX,
-        _______, _______,     _______,      NAV_APP_PREV, NAV_WIN_NEXT, NAV_APP_NEXT
+        _______, _______,     _______,      _______,      _______,   _______
     ),
 
     [L_NUMSYS] = LAYOUT_split_3x6_3(
