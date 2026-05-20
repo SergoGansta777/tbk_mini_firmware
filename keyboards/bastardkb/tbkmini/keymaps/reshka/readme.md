@@ -99,6 +99,7 @@ Purpose:
 - `H J K L` arrows
 - repeat and alternate repeat as motion helpers
 - a small set of high-value edit actions
+- fallback modifiers for mouse and window workflows
 - layer lock
 
 Layout logic:
@@ -117,6 +118,7 @@ Layout logic:
 - `Y`, `U`, `P` = copy, undo, paste
 - `S` = delete previous word
 - `D` = kill to end of line / paragraph
+- left outer column = `Ctrl`, `Alt`, `Cmd` as one-shot modifiers
 - `,` and `.` = page up / page down
 
 This layer is intentionally vim-inspired, not a full Vim emulator. It borrows
@@ -194,6 +196,7 @@ How to think about it:
 
 - right hand = cursor movement
 - left hand = word, line, document, and edit actions
+- left outer column = fallback modifiers
 - `;` and `'` = continue or reverse the last motion idea
 
 Core motions:
@@ -213,7 +216,15 @@ Search flow:
 - `N` = next search result
 - `'` after `N` = previous search result
 - `'` after `/` = global / project search
-- top-left outer key = `Layer Lock`
+- top row second key = `Layer Lock`
+
+Fallback modifier flow:
+
+- top-left outer key = `OSM(Ctrl)`
+- left home outer key = `OSM(Alt)`
+- left bottom outer key = `OSM(Gui / Cmd)`
+- tap one of them for a sticky modifier on the next key
+- hold one of them for a normal held modifier while using the mouse or trackpad
 
 Selection flow:
 

@@ -356,9 +356,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
 
     [L_NAV] = LAYOUT_split_3x6_3(
-        QK_LLCK, XXXXXXX,      NAV_WORD_NEXT, NAV_WORD_NEXT, XXXXXXX, XXXXXXX,    MAC_COPY,      MAC_UNDO,   NAV_LINE_START, XXXXXXX,   MAC_PASTE, KC_DEL,
-        XXXXXXX, NAV_LINE_END, MAC_DW_L,     MAC_KILL,      XXXXXXX, NAV_DOC_END, KC_LEFT,       KC_DOWN,    KC_UP,          KC_RGHT,  QK_REP,    QK_AREP,
-        XXXXXXX, XXXXXXX,      XXXXXXX,       XXXXXXX,       XXXXXXX, NAV_WORD_PREV, NAV_FIND_NEXT, XXXXXXX, KC_PGUP,        KC_PGDN,  NAV_FIND,   XXXXXXX,
+        OSM(MOD_LCTL), QK_LLCK,       NAV_WORD_NEXT, NAV_WORD_NEXT, XXXXXXX, XXXXXXX,    MAC_COPY,      MAC_UNDO,   NAV_LINE_START, XXXXXXX,   MAC_PASTE, KC_DEL,
+        OSM(MOD_LALT), NAV_LINE_END,  MAC_DW_L,      MAC_KILL,      XXXXXXX, NAV_DOC_END, KC_LEFT,       KC_DOWN,    KC_UP,          KC_RGHT,  QK_REP,    QK_AREP,
+        OSM(MOD_LGUI), XXXXXXX,       XXXXXXX,        XXXXXXX,       XXXXXXX, NAV_WORD_PREV, NAV_FIND_NEXT, XXXXXXX, KC_PGUP,        KC_PGDN,  NAV_FIND,   XXXXXXX,
         _______, _______,     _______,      _______,      _______,   _______
     ),
 
