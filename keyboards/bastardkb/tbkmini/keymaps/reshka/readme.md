@@ -81,12 +81,13 @@ Right outer column, bottom to top:
 
 Thumbs:
 
-- left: `Hyper`, `Nav/Caps Lock`, `Space`
+- left: `Globe/Fn`, `Nav/Caps Lock`, `Space`
 - right: `Enter`, `Num + System/Tab`, `Backspace`
 
 The two momentary layer keys sit in the middle thumb positions on both halves.
-The left outer thumb is intentionally a practical `Fn`/window-management key
-for macOS shortcuts and tools like Swish, not a real Apple `Fn`.
+The left outer thumb is an experimental macOS Globe/Fn key implemented with
+Apple's keyboard-layout-select consumer usage and `KEYBOARD_SHARED_EP = yes`.
+`Num + System` still exposes a plain `Gui/Command` on that same physical key.
 
 The base layer intentionally has no firmware home-row mods.
 

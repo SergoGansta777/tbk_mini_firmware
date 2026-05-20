@@ -19,6 +19,7 @@ enum custom_keycodes {
     NAV_FIND_GLOBAL,
     NAV_FIND_NEXT,
     NAV_FIND_PREV,
+    AP_GLOB,
 };
 
 enum combo_names {
@@ -42,6 +43,7 @@ enum combo_names {
 #define NAV_TAPPING_TERM      160
 #define NUMSYS_TAPPING_TERM   170
 #define LAYER_INDICATOR_DELAY 90
+#define APPLE_GLOBE_USAGE     AC_NEXT_KEYBOARD_LAYOUT_SELECT
 
 #define NAV_CAP    LT(L_NAV, KC_CAPS)
 #define NUMSYS_TAB LT(L_NUMSYS, KC_TAB)
@@ -200,7 +202,7 @@ static void remember_semantic_repeat_key(uint16_t keycode) {
     }
 }
 
-static void run_nav_search(uint16_t keycode, uint16_t shortcut) {
+static void run_semantic_shortcut(uint16_t keycode, uint16_t shortcut) {
     tap_code16(shortcut);
     remember_semantic_repeat_key(keycode);
 }
@@ -291,6 +293,14 @@ uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case AP_GLOB:
+            host_consumer_send(record->event.pressed ? APPLE_GLOBE_USAGE : 0);
+            return false;
+        default:
+            break;
+    }
+
     if (!record->event.pressed) {
         return true;
     }
@@ -300,21 +310,21 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if ((get_mods() | get_weak_mods()) & MOD_MASK_SHIFT) {
                 // Preserve the semantic key so Alt Repeat can flip between
                 // local and global search instead of repeating raw chords.
-                run_nav_search(NAV_FIND_GLOBAL, G(S(KC_F)));
+                run_semantic_shortcut(NAV_FIND_GLOBAL, G(S(KC_F)));
             } else {
-                run_nav_search(NAV_FIND, G(KC_F));
+                run_semantic_shortcut(NAV_FIND, G(KC_F));
             }
             return false;
         case NAV_FIND_GLOBAL:
-            run_nav_search(NAV_FIND_GLOBAL, G(S(KC_F)));
+            run_semantic_shortcut(NAV_FIND_GLOBAL, G(S(KC_F)));
             return false;
         case NAV_FIND_NEXT:
             // Preserve the semantic key so Repeat/Alt Repeat continue to
             // operate on "search next/prev" instead of the raw Cmd+G chord.
-            run_nav_search(NAV_FIND_NEXT, G(KC_G));
+            run_semantic_shortcut(NAV_FIND_NEXT, G(KC_G));
             return false;
         case NAV_FIND_PREV:
-            run_nav_search(NAV_FIND_PREV, G(S(KC_G)));
+            run_semantic_shortcut(NAV_FIND_PREV, G(S(KC_G)));
             return false;
         default:
             return true;
@@ -342,7 +352,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSLS,
         KC_ESC,  KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
         KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
-        KC_HYPR, NAV_CAP, KC_SPC,  KC_ENT,  NUMSYS_TAB, KC_BSPC
+        AP_GLOB, NAV_CAP, KC_SPC,  KC_ENT,  NUMSYS_TAB, KC_BSPC
     ),
 
     [L_NAV] = LAYOUT_split_3x6_3(
