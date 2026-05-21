@@ -281,8 +281,7 @@ How to think about it:
 - left side = machine controls
 - right side = media
 - bottom row = full `F1..F12`
-- left outer thumb = temporary `Gui/Command`
-- left inner thumb = `Shift` for shifted number-row symbols
+- left thumbs = `Gui`, `Shift`, `Space`
 
 Practical layout:
 
@@ -293,7 +292,8 @@ Practical layout:
 - right home row = previous, play/pause, next, mute, volume down, volume up
 - bottom row = `F1..F12` in order
 - left outer thumb = real `Gui/Command` while this layer is held
-- left inner thumb = `Shift` while this layer is held
+- left middle thumb = `Shift` for shifted number-row symbols
+- left inner thumb = `Space`
 
 This keeps numbers and shifted number symbols natural for programming while
 keeping system controls on the same deliberate right-thumb layer, while still
