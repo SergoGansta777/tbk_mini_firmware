@@ -36,10 +36,11 @@ enum combo_names {
     C_S_D_GRV,
 };
 
-#define COMBO_TERM_MIN         26
-#define COMBO_TERM_PAREN       28
-#define COMBO_TERM_RCBR        32
-#define COMBO_TERM_RELAXED     34
+#define COMBO_TERM_TIGHT       26
+#define COMBO_TERM_RT_LPRN     28
+#define COMBO_TERM_NM_RCBR     32
+#define COMBO_TERM_FJ_EQL      34
+#define COMBO_TERM_DK_UNDS     38
 #define NAV_TAPPING_TERM      160
 #define NUMSYS_TAPPING_TERM   170
 #define LAYER_INDICATOR_DELAY 90
@@ -236,22 +237,22 @@ combo_t key_combos[] = {
 uint16_t get_combo_term(uint16_t combo_index, combo_t *combo) {
     (void)combo;
 
-    // Keep all custom timings at or above 26 ms, then add room only where the chord
-    // is physically harder or unusually valuable.
+    // Keep the fast combos on one conservative baseline, then name the slower
+    // outliers explicitly once a chord needs its own timing.
     switch (combo_index) {
         case C_V_B_LCBR:
         case C_D_F_MINS:
         case C_J_K_PLUS:
-            return COMBO_TERM_MIN;
-        case C_D_K_UNDS:
-        case C_F_J_EQL:
-            return COMBO_TERM_RELAXED;
-        case C_N_M_RCBR:
-            return COMBO_TERM_RCBR;
         case C_S_D_GRV:
-            return COMBO_TERM_MIN;
+            return COMBO_TERM_TIGHT;
+        case C_D_K_UNDS:
+            return COMBO_TERM_DK_UNDS;
+        case C_F_J_EQL:
+            return COMBO_TERM_FJ_EQL;
+        case C_N_M_RCBR:
+            return COMBO_TERM_NM_RCBR;
         case C_R_T_LPRN:
-            return COMBO_TERM_PAREN;
+            return COMBO_TERM_RT_LPRN;
         default:
             return COMBO_TERM;
     }

@@ -354,7 +354,8 @@ Combos are intentionally configured with a strict policy:
 - a `26ms` floor for all custom per-combo timings
 - same-hand combos kept only where they are clearly worth it
 - a small bump for `(`
-- a relaxed timing bucket only for the two operator chords that still benefit from it
+- a dedicated slightly looser timeout for `F + J`
+- the loosest timeout reserved for `D + K`
 - a slightly looser timing for `{`, with `}` kept a bit tighter
 
 This keeps the combo set usable for fast typing while reducing accidental
@@ -405,11 +406,15 @@ chord:
 - `V + B`
 - `N + M`
 
-The cross-hand operator box uses a more relaxed timing bucket because those
-operator chords are more deliberate and physically cleaner on this board:
+The cross-hand operator box gets extra room because those operator chords are
+more deliberate and physically cleaner on this board, but they no longer share
+one generic timing bucket:
 
 - `D + K`
 - `F + J`
+
+`D + K -> _` is the loosest of the set because it is the hardest one to hit
+cleanly and is also a high-value programming symbol.
 
 ## Build
 
