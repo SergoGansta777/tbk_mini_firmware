@@ -134,6 +134,7 @@ Important approximations:
 - `Alt Repeat` after `N` gives previous search result
 - `Alt Repeat` after `A` gives line start
 - `Alt Repeat` after `G` gives document start
+- `Alt Repeat` after undo gives redo
 
 This avoids pretending that generic macOS text fields can provide exact Vim
 semantics for things like distinct `w` vs `e` or true `0` vs `^`.
@@ -256,10 +257,17 @@ This is what makes the layer feel more Vim-like without becoming modal:
 - `A`, then `'` = line start
 - `G`, then `'` = document start
 - `N`, then `'` = previous search result
+- `U`, then `'` = redo
+
+Outside `Nav`, `Alt Repeat` also complements a couple of high-value editing keys:
+
+- `Tab`, then `Alt Repeat` = `Shift + Tab`
+- `Shift + Tab`, then `Alt Repeat` = `Tab`
 
 Repeat is intentionally motion-biased on this layer:
 
 - `Delete`, `Copy`, and `Paste` do not replace the remembered motion/search key
+- `Undo` still stays repeatable so `Alt Repeat` can complement it with redo
 - this keeps `;` and `'` acting more like navigation/search operators than
   clipboard helpers
 

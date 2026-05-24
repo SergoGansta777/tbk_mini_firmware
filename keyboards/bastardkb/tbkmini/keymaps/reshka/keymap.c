@@ -208,6 +208,22 @@ static void run_semantic_shortcut(uint16_t keycode, uint16_t shortcut) {
     remember_semantic_repeat_key(keycode);
 }
 
+static bool mods_match_undo_pair(uint8_t mods) {
+    return (mods & MOD_MASK_GUI) != 0 && (mods & ~(MOD_MASK_GUI | MOD_MASK_SHIFT)) == 0;
+}
+
+static bool mods_match_tab_pair(uint8_t mods) {
+    return (mods & ~MOD_MASK_SHIFT) == 0;
+}
+
+static uint16_t alternate_tab_keycode(uint8_t mods) {
+    return (mods & MOD_MASK_SHIFT) ? KC_TAB : S(KC_TAB);
+}
+
+static uint16_t alternate_undo_keycode(uint8_t mods) {
+    return (mods & MOD_MASK_SHIFT) ? G(KC_Z) : G(S(KC_Z));
+}
+
 static const uint16_t PROGMEM combo_rt_lprn[] = {KC_R, KC_T, COMBO_END};
 static const uint16_t PROGMEM combo_yu_rprn[] = {KC_Y, KC_U, COMBO_END};
 static const uint16_t PROGMEM combo_fg_lbrc[] = {KC_F, KC_G, COMBO_END};
@@ -275,9 +291,17 @@ bool combo_should_trigger(uint16_t combo_index, combo_t *combo, uint16_t keycode
 }
 
 uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
-    (void)mods;
-
     switch (keycode) {
+        case KC_TAB:
+            if (mods_match_tab_pair(mods)) {
+                return alternate_tab_keycode(mods);
+            }
+            return KC_TRNS;
+        case KC_Z:
+            if (mods_match_undo_pair(mods)) {
+                return alternate_undo_keycode(mods);
+            }
+            return KC_TRNS;
         case NAV_FIND:
             return NAV_FIND_GLOBAL;
         case NAV_FIND_GLOBAL:
@@ -337,8 +361,9 @@ bool remember_last_key_user(uint16_t keycode, keyrecord_t *record, uint8_t *reme
     (void)remembered_mods;
 
     switch (keycode) {
-        // Keep Repeat/Alt Repeat biased toward motions and search, not toward
-        // clipboard actions or a bare forward delete.
+        // Keep Repeat/Alt Repeat biased toward motions, search, and the
+        // deliberate undo/redo pair, not toward clipboard actions or a bare
+        // forward delete.
         case KC_DEL:
         case MAC_COPY:
         case MAC_PASTE:
