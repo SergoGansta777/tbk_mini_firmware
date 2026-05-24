@@ -59,9 +59,6 @@ enum combo_names {
 #define NAV_LINE_START G(KC_LEFT)
 #define NAV_LINE_END   G(KC_RGHT)
 #define NAV_DOC_END    G(KC_DOWN)
-#define MAC_SPOT   G(KC_SPC)
-#define MAC_MCTL   C(KC_UP)
-#define MAC_SSHOT  G(S(KC_4))
 
 #ifdef RGB_MATRIX_ENABLE
 enum indicator_brightness {
@@ -390,7 +387,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [L_NUMSYS] = LAYOUT_split_3x6_3(
         QK_LLCK, KC_1,      KC_2,     KC_3,     KC_4,      KC_5,      KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_DEL,
-        KC_BRID, KC_BRIU,   MAC_SPOT, MAC_MCTL, MAC_SSHOT, XXXXXXX,   KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD, KC_VOLU,
+        KC_BRID, KC_BRIU,   XXXXXXX,  XXXXXXX,  XXXXXXX,   XXXXXXX,   KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD, KC_VOLU,
         KC_F1,   KC_F2,     KC_F3,    KC_F4,    KC_F5,     KC_F6,     KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,
         KC_LGUI, KC_LSFT,   KC_SPC,    _______,   _______,   _______
     ),

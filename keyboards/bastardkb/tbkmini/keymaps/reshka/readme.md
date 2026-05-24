@@ -147,15 +147,12 @@ Purpose:
 - `Delete`
 - media controls
 - brightness
-- Spotlight and Mission Control on macOS
-- screenshot shortcut
 - `F1..F12`
 - layer lock
 
 This layer is intentionally limited to machine-level controls: function keys,
-media, display brightness, and a small set of macOS workspace actions, with the
-number row restored to the right-thumb layer so `Nav` can stay focused on
-movement instead of carrying both jobs at once.
+media, display brightness, and the number row on the right-thumb layer, so
+`Nav` can stay focused on movement instead of carrying both jobs at once.
 
 ### Layer 3: Keyboard
 
@@ -296,7 +293,7 @@ Practical layout:
 - top row = `1 2 3 4 5 6 7 8 9 0`
 - top-right outer key = `Delete`
 - top-left outer key = `Layer Lock` with a 60-second idle timeout
-- left home row = brightness, Spotlight, Mission Control, screenshot
+- left home row = brightness plus four intentionally empty spare slots
 - right home row = previous, play/pause, next, mute, volume down, volume up
 - bottom row = `F1..F12` in order
 - left outer thumb = real `Gui/Command` while this layer is held
