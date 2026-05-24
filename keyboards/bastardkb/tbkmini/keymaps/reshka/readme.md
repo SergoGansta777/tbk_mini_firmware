@@ -217,7 +217,7 @@ Search flow:
 - `N` = next search result
 - `'` after `N` = previous search result
 - `'` after `/` = global / project search
-- top row second key = `Layer Lock`
+- top row second key = `Layer Lock` with a 60-second idle timeout
 
 Fallback modifier flow:
 
@@ -295,7 +295,7 @@ Practical layout:
 
 - top row = `1 2 3 4 5 6 7 8 9 0`
 - top-right outer key = `Delete`
-- top-left outer key = `Layer Lock`
+- top-left outer key = `Layer Lock` with a 60-second idle timeout
 - left home row = brightness, Spotlight, Mission Control, screenshot
 - right home row = previous, play/pause, next, mute, volume down, volume up
 - bottom row = `F1..F12` in order
