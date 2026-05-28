@@ -1,6 +1,6 @@
 {
     "userspace_version": "1.0",
     "build_targets": [
-        ["bastardkb/tbkmini", "reshka"]
+        ["bastardkb/tbkmini/splinktegrated_rev1", "reshka"]
     ]
 }

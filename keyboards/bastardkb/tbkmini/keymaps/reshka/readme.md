@@ -2,7 +2,7 @@
 
 This keymap is a documented starting point for a TBK Mini on Splinky v3 using:
 
-- BastardKB `bkb-master` as the firmware base
+- BastardKB `bkb-develop` as the firmware base
 - external QMK userspace for custom keymaps
 - VIA for live remapping after the firmware structure is stable
 - macOS host-side home-row mods, not firmware home-row mods
@@ -25,6 +25,21 @@ behavior and design guide for the current keymap.
 - `KEY_OVERRIDE_ENABLE`
 - `LAYER_LOCK_ENABLE`
 - `REPEAT_KEY_ENABLE`
+
+## Modern stack baseline
+
+This keymap now assumes the post-migration BastardKB / QMK stack:
+
+- explicit hardware target: `bastardkb/tbkmini/splinktegrated_rev1`
+- shared TBK Mini keymap path: `keyboards/bastardkb/tbkmini/keymaps/reshka`
+- built-in `SPLIT_LAYER_STATE_ENABLE` for layer-aware split cosmetics
+- built-in `SPLIT_ACTIVITY_ENABLE` so idle RGB timeouts respect either half
+- built-in `SPLIT_WATCHDOG_ENABLE` for split-link recovery
+- no forced `KEYBOARD_SHARED_EP`, since the modern build no longer needs it
+
+The only remaining custom split RPC is the small RGB-indicator payload for
+`Caps Word` and combo-enabled state, because those are not mirrored by QMK's
+core split sync.
 
 ## Home-Row Mods Policy
 
@@ -63,6 +78,10 @@ Additional tuning for the two thumb layer keys:
 
 Caps Word is entered by pressing both Shift keys together.
 
+While Caps Word is active, holding either Shift key inverts case instead of
+breaking the word. This makes mixed-case suffixes like `DBaaS` and `PDFs`
+possible without leaving Caps Word.
+
 ## Layer overview
 
 ### Layer 0: Base
@@ -86,8 +105,8 @@ Thumbs:
 
 The two momentary layer keys sit in the middle thumb positions on both halves.
 The left outer thumb is an experimental macOS Globe/Fn key implemented with
-Apple's keyboard-layout-select consumer usage and `KEYBOARD_SHARED_EP = yes`.
-`Num + System` still exposes a plain `Gui/Command` on that same physical key.
+Apple's keyboard-layout-select consumer usage. `Num + System` still exposes a
+plain `Gui/Command` on that same physical key.
 
 The base layer intentionally has no firmware home-row mods.
 
@@ -111,7 +130,7 @@ Layout logic:
 - `I` = line start
 - `G` = document end
 - `/` = find
-- `Shift + /` = global / project search when using a real firmware Shift
+- `Shift + /` = global / project search when using a real firmware Shift or one-shot Shift
 - `N` = next search result
 - `;` = `Repeat`
 - `'` = `Alt Repeat`
@@ -210,7 +229,7 @@ Core motions:
 Search flow:
 
 - `/` = find
-- `Shift + /` = global / project search when using a real firmware Shift
+- `Shift + /` = global / project search when using a real firmware Shift or one-shot Shift
 - `N` = next search result
 - `'` after `N` = previous search result
 - `'` after `/` = global / project search
@@ -335,10 +354,15 @@ lighting:
 - combos disabled on the base layer: both layer-thumb LEDs turn purple
 
 On this split build, layer, `Caps Word`, and combo-indicator state are synced to
-the slave half so both sides render the same status LEDs.
+the slave half so both sides render the same status LEDs. Layer state now uses
+QMK's built-in split sync, while `Caps Word` and combo-enabled state stay on a
+small custom user RPC.
 
 Momentary layer indicators use lower brightness and a small delay so quick
 number-entry and short nav taps do not flash in peripheral vision.
+
+RGB Matrix also turns off after `15` minutes of inactivity, and that timeout is
+fed by activity from either half of the split board.
 
 ## Key overrides
 
@@ -424,10 +448,16 @@ cleanly and is also a high-value programming symbol.
 ## Build
 
 After `user.qmk_home` points at the BastardKB firmware tree and
-`user.overlay_dir` points at this userspace:
+`user.overlay_dir` points at this userspace, the preferred build command is:
 
 ```sh
-qmk compile -kb bastardkb/tbkmini -km reshka
+qmk userspace-compile -c
+```
+
+Equivalent explicit target:
+
+```sh
+qmk compile -kb bastardkb/tbkmini/splinktegrated_rev1 -km reshka
 ```
 
 ## Flash

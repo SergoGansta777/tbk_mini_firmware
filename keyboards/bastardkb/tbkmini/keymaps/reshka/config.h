@@ -6,10 +6,17 @@
 #define QUICK_TAP_TERM_PER_KEY
 #define HOLD_ON_OTHER_KEY_PRESS_PER_KEY
 #define BOTH_SHIFTS_TURNS_ON_CAPS_WORD
+#define CAPS_WORD_INVERT_ON_SHIFT
 #define CAPS_WORD_IDLE_TIMEOUT 4000
 #define LAYER_LOCK_IDLE_TIMEOUT 60000
 #define RGB_MATRIX_SLEEP
-// Sync layer/Caps Word/combo indicator state to the slave half for RGB.
+#define RGB_MATRIX_TIMEOUT 900000
+#define SPLIT_LAYER_STATE_ENABLE
+#define SPLIT_ACTIVITY_ENABLE
+#define SPLIT_WATCHDOG_ENABLE
+#define SPLIT_WATCHDOG_TIMEOUT 5000
+// Layer state now uses built-in split sync; keep the custom RPC only for
+// Caps Word and combo-enabled indicator state.
 #define SPLIT_TRANSACTION_IDS_USER RPC_ID_USER_INDICATOR_SYNC
 
 #define COMBO_TERM 30

@@ -16,17 +16,31 @@ The actual custom keymap lives at:
 
 The build target is:
 
-- `bastardkb/tbkmini:reshka`
+- `bastardkb/tbkmini/splinktegrated_rev1:reshka`
+
+On newer BastardKB branches, TBK Mini is revisioned. The build target is
+`splinktegrated_rev1` because it matches the older GP1 soft-serial RP2040 TBK
+Mini definition that this repo was already building against. The keymap itself
+stays in the shared `tbkmini/keymaps/` directory, which matches BastardKB's own
+layout for revisioned TBK Mini targets.
 
 ## Hardware and Current Model
 
 - keyboard: BastardKB TBK Mini
 - controllers: Splinky v3 on both halves
 - firmware base: `bastardkb-qmk`
-- vendor branch: `bkb-master`
+- vendor branch: local `bkb-develop` tracking `origin/bkb-develop`
 - custom logic: this external userspace repo
 - runtime remapping: VIA
 - home-row mods: currently handled on macOS by a host-side app, not in firmware
+
+Modern stack notes:
+
+- build target: `bastardkb/tbkmini/splinktegrated_rev1`
+- keymap path stays shared at `keyboards/bastardkb/tbkmini/keymaps/reshka`
+- split layer state and split activity use QMK's built-in sync
+- a small custom split RPC remains only for `Caps Word` and combo-indicator state
+- `KEYBOARD_SHARED_EP` is intentionally not forced, to keep standard Boot Keyboard compatibility
 
 Important consequence:
 
@@ -39,7 +53,7 @@ This setup uses two repositories:
 
 1. Vendor firmware base
    - expected repo: `https://github.com/Bastardkb/bastardkb-qmk.git`
-   - expected branch: `bkb-master`
+   - expected branch: `bkb-develop`
 
 2. Personal userspace
    - this repository
@@ -51,7 +65,7 @@ backup.
 Known local upstream state when this README was written:
 
 - firmware repo upstream remote: `origin -> https://github.com/Bastardkb/bastardkb-qmk.git`
-- known-good firmware base commit: `8f3b92fff27e6356120913a4ec6b21a017d0fef6`
+- known-good firmware base commit: `a02692a7887df12ad026b3e1085c1b890a3902ef`
 
 If BastardKB changes something upstream and a future build behaves differently,
 you can temporarily check out that exact commit in the vendor repo to reproduce
@@ -64,7 +78,7 @@ the previously tested state.
 - `qmk.json`
   - userspace build targets for QMK and GitHub Actions
 - `.github/workflows/build_binaries.yaml`
-  - builds firmware on push using BastardKB QMK on `bkb-master`
+  - builds firmware on push using BastardKB QMK on `bkb-develop`
 - `keyboards/bastardkb/tbkmini/keymaps/reshka/keymap.c`
   - layers, combos, key overrides, RGB indicators, and custom behavior
 - `keyboards/bastardkb/tbkmini/keymaps/reshka/config.h`
@@ -95,13 +109,13 @@ Example:
 ```sh
 git clone https://github.com/Bastardkb/bastardkb-qmk.git ~/src/bastardkb-qmk
 cd ~/src/bastardkb-qmk
-git checkout bkb-master
+git switch --track origin/bkb-develop
 ```
 
-If you need the known-tested upstream snapshot instead of current `bkb-master`:
+If you need the known-tested upstream snapshot instead of current `bkb-develop`:
 
 ```sh
-git checkout 8f3b92fff27e6356120913a4ec6b21a017d0fef6
+git checkout a02692a7887df12ad026b3e1085c1b890a3902ef
 ```
 
 ### 3. Clone this userspace repo
@@ -130,13 +144,21 @@ user.overlay_dir=/Users/0xse.reshka/Projects/Other/bastardkb-qmk-userspace
 
 ### 5. Build
 
+Preferred userspace entrypoint:
+
 ```sh
-qmk compile -c -kb bastardkb/tbkmini -km reshka
+qmk userspace-compile -c
+```
+
+Equivalent explicit target:
+
+```sh
+qmk compile -c -kb bastardkb/tbkmini/splinktegrated_rev1 -km reshka
 ```
 
 The generated UF2 is copied to the userspace root:
 
-- `bastardkb_tbkmini_reshka.uf2`
+- `bastardkb_tbkmini_splinktegrated_rev1_reshka.uf2`
 
 ### 6. Flash both halves
 
@@ -148,7 +170,7 @@ Recommended process:
 2. Disconnect the halves from each other to reduce variables while flashing.
 3. Plug USB into one half.
 4. Double-press the bottom `UPDATE` button to enter the UF2 bootloader.
-5. Copy `bastardkb_tbkmini_reshka.uf2` to the `RPI-RP2` drive.
+5. Copy `bastardkb_tbkmini_splinktegrated_rev1_reshka.uf2` to the `RPI-RP2` drive.
 6. Repeat on the other half with the same UF2.
 7. Reconnect the halves and use USB on the right half.
 
@@ -237,7 +259,7 @@ Do not bury vendor changes inside this userspace repo. Keep the separation clear
 The included GitHub Actions workflow builds this userspace against:
 
 - `bastardkb/bastardkb-qmk`
-- branch `bkb-master`
+- branch `bkb-develop`
 
 ## Related Documentation
 
