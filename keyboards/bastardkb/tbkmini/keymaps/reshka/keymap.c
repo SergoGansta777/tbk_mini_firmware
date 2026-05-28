@@ -19,7 +19,7 @@ enum custom_keycodes {
     NAV_FIND_GLOBAL,
     NAV_FIND_NEXT,
     NAV_FIND_PREV,
-    AP_GLOB,
+    MAC_GLOBE,
 };
 
 enum combo_names {
@@ -46,14 +46,14 @@ enum combo_names {
 #define LAYER_INDICATOR_DELAY 90
 #define APPLE_GLOBE_USAGE     AC_NEXT_KEYBOARD_LAYOUT_SELECT
 
-#define NAV_CAP    LT(L_NAV, KC_CAPS)
+#define NAV_CAPS   LT(L_NAV, KC_CAPS)
 #define NUMSYS_TAB LT(L_NUMSYS, KC_TAB)
 
 #define MAC_UNDO   G(KC_Z)
 #define MAC_COPY   G(KC_C)
 #define MAC_PASTE  G(KC_V)
-#define MAC_DW_L   A(KC_BSPC)
-#define MAC_KILL   C(KC_K)
+#define MAC_DELETE_WORD_LEFT A(KC_BSPC)
+#define MAC_KILL_TO_END      C(KC_K)
 #define NAV_WORD_NEXT  A(KC_RGHT)
 #define NAV_WORD_PREV  A(KC_LEFT)
 #define NAV_LINE_START G(KC_LEFT)
@@ -171,7 +171,7 @@ void housekeeping_task_user(void) {
 
 static bool is_thumb_layer_key(uint16_t keycode) {
     switch (keycode) {
-        case NAV_CAP:
+        case NAV_CAPS:
         case NUMSYS_TAB:
             return true;
         default:
@@ -181,13 +181,21 @@ static bool is_thumb_layer_key(uint16_t keycode) {
 
 static uint16_t thumb_layer_tapping_term(uint16_t keycode) {
     switch (keycode) {
-        case NAV_CAP:
+        case NAV_CAPS:
             return NAV_TAPPING_TERM;
         case NUMSYS_TAB:
             return NUMSYS_TAPPING_TERM;
         default:
             return TAPPING_TERM;
     }
+}
+
+static uint8_t active_mods(void) {
+    return get_mods() | get_weak_mods() | get_oneshot_mods();
+}
+
+static bool shift_active(void) {
+    return (active_mods() & MOD_MASK_SHIFT) != 0;
 }
 
 static void remember_semantic_repeat_key(uint16_t keycode) {
@@ -313,7 +321,7 @@ uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        case AP_GLOB:
+        case MAC_GLOBE:
             host_consumer_send(record->event.pressed ? APPLE_GLOBE_USAGE : 0);
             return false;
         default:
@@ -326,7 +334,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     switch (keycode) {
         case NAV_FIND:
-            if ((get_mods() | get_weak_mods() | get_oneshot_mods()) & MOD_MASK_SHIFT) {
+            if (shift_active()) {
                 // Preserve the semantic key so Alt Repeat can flip between
                 // local and global search instead of repeating raw chords.
                 run_semantic_shortcut(NAV_FIND_GLOBAL, G(S(KC_F)));
@@ -372,12 +380,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSLS,
         KC_ESC,  KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
         KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
-        AP_GLOB, NAV_CAP, KC_SPC,  KC_ENT,  NUMSYS_TAB, KC_BSPC
+        MAC_GLOBE, NAV_CAPS, KC_SPC,  KC_ENT,  NUMSYS_TAB, KC_BSPC
     ),
 
     [L_NAV] = LAYOUT_split_3x6_3(
         OSM(MOD_LCTL), QK_LLCK,       NAV_WORD_NEXT, NAV_WORD_NEXT, XXXXXXX, XXXXXXX,    MAC_COPY,      MAC_UNDO,   NAV_LINE_START, XXXXXXX,   MAC_PASTE, KC_DEL,
-        OSM(MOD_LALT), NAV_LINE_END,  MAC_DW_L,      MAC_KILL,      XXXXXXX, NAV_DOC_END, KC_LEFT,       KC_DOWN,    KC_UP,          KC_RGHT,  QK_REP,    QK_AREP,
+        OSM(MOD_LALT), NAV_LINE_END,  MAC_DELETE_WORD_LEFT, MAC_KILL_TO_END, XXXXXXX, NAV_DOC_END, KC_LEFT, KC_DOWN, KC_UP, KC_RGHT, QK_REP, QK_AREP,
         OSM(MOD_LGUI), XXXXXXX,       XXXXXXX,        XXXXXXX,       XXXXXXX, NAV_WORD_PREV, NAV_FIND_NEXT, XXXXXXX, KC_PGUP,        KC_PGDN,  NAV_FIND,   XXXXXXX,
         _______, _______,     _______,      _______,      _______,   _______
     ),

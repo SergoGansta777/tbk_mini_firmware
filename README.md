@@ -228,8 +228,8 @@ These are intentional project rules, not accidents:
 After a firmware change, test these in order:
 
 1. Base layer typing
-2. `Nav/Tab` thumb key
-3. `Num + System/Caps` thumb key
+2. `Nav/Caps Lock` thumb key
+3. `Num + System/Tab` thumb key
 4. `Nav` layer movement, search, and repeat flow
 5. `Num + System` layer numbers, media, and `F1..F12`
 6. `Keyboard` tri-layer
