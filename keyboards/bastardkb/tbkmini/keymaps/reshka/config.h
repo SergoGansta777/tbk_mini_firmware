@@ -15,8 +15,8 @@
 #define SPLIT_ACTIVITY_ENABLE
 #define SPLIT_WATCHDOG_ENABLE
 #define SPLIT_WATCHDOG_TIMEOUT 5000
-// Layer state now uses built-in split sync; keep the custom RPC only for
-// Caps Word and combo-enabled indicator state.
+// Layer state now uses built-in split sync; keep the custom RPC only for host
+// Caps Lock, Caps Word, and combo-enabled indicator state.
 #define SPLIT_TRANSACTION_IDS_USER RPC_ID_USER_INDICATOR_SYNC
 
 #define COMBO_TERM 30

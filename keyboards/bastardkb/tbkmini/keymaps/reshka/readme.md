@@ -37,9 +37,9 @@ This keymap now assumes the post-migration BastardKB / QMK stack:
 - built-in `SPLIT_WATCHDOG_ENABLE` for split-link recovery
 - no forced `KEYBOARD_SHARED_EP`, since the modern build no longer needs it
 
-The only remaining custom split RPC is the small RGB-indicator payload for
-`Caps Word` and combo-enabled state, because those are not mirrored by QMK's
-core split sync.
+The only remaining custom split RPC is the small RGB-indicator payload for host
+`Caps Lock`, `Caps Word`, and combo-enabled state, because those are not
+mirrored by QMK's core split sync.
 
 ## Home-Row Mods Policy
 
@@ -350,13 +350,16 @@ lighting:
 - `Nav` layer: after a short hold delay, only the `Nav/Caps Lock` thumb LED turns blue/cyan
 - `Num + System` layer: after a short hold delay, the `Num + System/Tab` thumb LED turns amber and the opposite layer thumb glows dim amber
 - `Keyboard` layer: both layer-thumb LEDs turn red
+- `Caps Lock`: both shift LEDs turn amber
 - `Caps Word`: both shift LEDs turn green
 - combos disabled on the base layer: both layer-thumb LEDs turn purple
 
-On this split build, layer, `Caps Word`, and combo-indicator state are synced to
-the slave half so both sides render the same status LEDs. Layer state now uses
-QMK's built-in split sync, while `Caps Word` and combo-enabled state stay on a
-small custom user RPC.
+On this split build, layer, host `Caps Lock`, `Caps Word`, and combo-indicator
+state are synced to the slave half so both sides render the same status LEDs.
+Layer state now uses QMK's built-in split sync, while host `Caps Lock`,
+`Caps Word`, and combo-enabled state stay on a small custom user RPC.
+`Caps Word` intentionally wins if both `Caps Lock` and `Caps Word` are active at
+the same time.
 
 Momentary layer indicators use lower brightness and a small delay so quick
 number-entry and short nav taps do not flash in peripheral vision.

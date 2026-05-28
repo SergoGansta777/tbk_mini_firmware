@@ -39,7 +39,7 @@ Modern stack notes:
 - build target: `bastardkb/tbkmini/splinktegrated_rev1`
 - keymap path stays shared at `keyboards/bastardkb/tbkmini/keymaps/reshka`
 - split layer state and split activity use QMK's built-in sync
-- a small custom split RPC remains only for `Caps Word` and combo-indicator state
+- a small custom split RPC remains only for host `Caps Lock`, `Caps Word`, and combo-indicator state
 - `KEYBOARD_SHARED_EP` is intentionally not forced, to keep standard Boot Keyboard compatibility
 
 Important consequence:
@@ -149,6 +149,9 @@ Preferred userspace entrypoint:
 ```sh
 qmk userspace-compile -c
 ```
+
+Run QMK builds sequentially. The vendor tree uses a shared `.build` directory,
+so overlapping local compiles can trip over each other.
 
 Equivalent explicit target:
 

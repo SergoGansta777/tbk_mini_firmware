@@ -67,6 +67,17 @@ enum indicator_brightness {
     INDICATOR_MID = 48,
     INDICATOR_ON  = 96,
 };
+
+enum indicator_key_position {
+    INDICATOR_LEFT_SHIFT_ROW       = 2,
+    INDICATOR_LEFT_SHIFT_COL       = 0,
+    INDICATOR_RIGHT_SHIFT_ROW      = 6,
+    INDICATOR_RIGHT_SHIFT_COL      = 0,
+    INDICATOR_LEFT_LAYER_THUMB_ROW = 3,
+    INDICATOR_LEFT_LAYER_THUMB_COL = 4,
+    INDICATOR_RIGHT_LAYER_THUMB_ROW = 7,
+    INDICATOR_RIGHT_LAYER_THUMB_COL = 4,
+};
 #endif
 
 #ifdef RGB_MATRIX_ENABLE
@@ -76,17 +87,15 @@ static uint8_t  last_indicator_layer = L_BASE;
 #endif
 
 #if defined(SPLIT_KEYBOARD) && defined(RGB_MATRIX_ENABLE)
-typedef struct {
-    uint8_t caps_word_on;
-    uint8_t combo_enabled;
-} indicator_sync_t;
+enum indicator_flags {
+    INDICATOR_CAPS_LOCK_ON  = 1 << 0,
+    INDICATOR_CAPS_WORD_ON  = 1 << 1,
+    INDICATOR_COMBOS_ACTIVE = 1 << 2,
+};
 
 // Layer state is synced by QMK core. Keep a tiny custom payload only for
 // indicator state that QMK does not mirror automatically.
-static indicator_sync_t indicator_state = {
-    .caps_word_on  = 0,
-    .combo_enabled = 1,
-};
+static uint8_t indicator_state = INDICATOR_COMBOS_ACTIVE;
 #endif
 
 static const key_override_t delete_key_override = ko_make_basic(MOD_MASK_SHIFT, KC_BSPC, KC_DEL);
@@ -112,10 +121,8 @@ static void refresh_indicator_timers(uint8_t current_layer) {
 
     last_indicator_layer = current_layer;
 }
-#endif
 
-#if defined(SPLIT_KEYBOARD) && defined(RGB_MATRIX_ENABLE)
-static bool combo_state_local(void) {
+static bool local_combos_enabled(void) {
 #ifdef COMBO_ENABLE
     return is_combo_enabled();
 #else
@@ -123,47 +130,46 @@ static bool combo_state_local(void) {
 #endif
 }
 
-static void apply_indicator_state(const indicator_sync_t *state) {
-    indicator_state = *state;
+static bool local_caps_lock_on(void) {
+    return host_keyboard_led_state().caps_lock;
 }
 
-static indicator_sync_t current_indicator_state(void) {
-    return (indicator_sync_t){
-        .caps_word_on  = is_caps_word_on(),
-        .combo_enabled = combo_state_local(),
-    };
-}
-
-static bool indicator_caps_word_on(void) {
-    return indicator_state.caps_word_on;
-}
-
-static bool indicator_combos_enabled(void) {
-    return indicator_state.combo_enabled;
-}
-
-static bool indicator_caps_word_active(void) {
-    if (!is_keyboard_master()) {
-        return indicator_caps_word_on();
-    }
-
+static bool local_caps_word_on(void) {
     return is_caps_word_on();
 }
+#endif
 
-static bool indicator_combos_active(void) {
-    if (!is_keyboard_master()) {
-        return indicator_combos_enabled();
+#if defined(SPLIT_KEYBOARD) && defined(RGB_MATRIX_ENABLE)
+static uint8_t current_indicator_state(void) {
+    uint8_t state = 0;
+
+    if (local_caps_lock_on()) {
+        state |= INDICATOR_CAPS_LOCK_ON;
+    }
+    if (local_caps_word_on()) {
+        state |= INDICATOR_CAPS_WORD_ON;
+    }
+    if (local_combos_enabled()) {
+        state |= INDICATOR_COMBOS_ACTIVE;
     }
 
-    return combo_state_local();
+    return state;
+}
+
+static bool synced_indicator_state(uint8_t flag) {
+    return (indicator_state & flag) != 0;
+}
+
+static bool effective_indicator_state(uint8_t flag, bool local_state) {
+    return is_keyboard_master() ? local_state : synced_indicator_state(flag);
 }
 
 static void indicator_sync_slave(uint8_t initiator2target_buffer_size, const void *initiator2target_buffer, uint8_t target2initiator_buffer_size, void *target2initiator_buffer) {
     (void)target2initiator_buffer_size;
     (void)target2initiator_buffer;
 
-    if (initiator2target_buffer_size == sizeof(indicator_sync_t)) {
-        apply_indicator_state((const indicator_sync_t *)initiator2target_buffer);
+    if (initiator2target_buffer_size == sizeof(indicator_state)) {
+        indicator_state = *(const uint8_t *)initiator2target_buffer;
     }
 }
 
@@ -176,10 +182,10 @@ void housekeeping_task_user(void) {
         return;
     }
 
-    indicator_sync_t next_state = current_indicator_state();
+    uint8_t next_state = current_indicator_state();
 
-    if (memcmp(&indicator_state, &next_state, sizeof(next_state)) != 0) {
-        apply_indicator_state(&next_state);
+    if (indicator_state != next_state) {
+        indicator_state = next_state;
         transaction_rpc_send(RPC_ID_USER_INDICATOR_SYNC, sizeof(next_state), &next_state);
     }
 }
@@ -462,8 +468,13 @@ static void set_thumb_pair(
     uint8_t right_green,
     uint8_t right_blue
 ) {
-    set_indicator_color(led_min, led_max, led_index_for_key(3, 4), left_red, left_green, left_blue);
-    set_indicator_color(led_min, led_max, led_index_for_key(7, 4), right_red, right_green, right_blue);
+    set_indicator_color(led_min, led_max, led_index_for_key(INDICATOR_LEFT_LAYER_THUMB_ROW, INDICATOR_LEFT_LAYER_THUMB_COL), left_red, left_green, left_blue);
+    set_indicator_color(led_min, led_max, led_index_for_key(INDICATOR_RIGHT_LAYER_THUMB_ROW, INDICATOR_RIGHT_LAYER_THUMB_COL), right_red, right_green, right_blue);
+}
+
+static void set_shift_pair(uint8_t led_min, uint8_t led_max, uint8_t red, uint8_t green, uint8_t blue) {
+    set_indicator_color(led_min, led_max, led_index_for_key(INDICATOR_LEFT_SHIFT_ROW, INDICATOR_LEFT_SHIFT_COL), red, green, blue);
+    set_indicator_color(led_min, led_max, led_index_for_key(INDICATOR_RIGHT_SHIFT_ROW, INDICATOR_RIGHT_SHIFT_COL), red, green, blue);
 }
 
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
@@ -471,17 +482,20 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
 
     refresh_indicator_timers(layer);
 
-    bool caps_word_on = is_caps_word_on();
-    bool combos_enabled = true;
+    bool caps_lock_on  = local_caps_lock_on();
+    bool caps_word_on  = local_caps_word_on();
+    bool combos_enabled = local_combos_enabled();
 
 #if defined(SPLIT_KEYBOARD)
-    caps_word_on = indicator_caps_word_active();
-    combos_enabled = indicator_combos_active();
+    caps_lock_on = effective_indicator_state(INDICATOR_CAPS_LOCK_ON, caps_lock_on);
+    caps_word_on = effective_indicator_state(INDICATOR_CAPS_WORD_ON, caps_word_on);
+    combos_enabled = effective_indicator_state(INDICATOR_COMBOS_ACTIVE, combos_enabled);
 #endif
 
     if (caps_word_on) {
-        set_indicator_color(led_min, led_max, led_index_for_key(2, 0), 0, INDICATOR_ON, 40);
-        set_indicator_color(led_min, led_max, led_index_for_key(6, 0), 0, INDICATOR_ON, 40);
+        set_shift_pair(led_min, led_max, 0, INDICATOR_ON, 40);
+    } else if (caps_lock_on) {
+        set_shift_pair(led_min, led_max, INDICATOR_ON, INDICATOR_MID, INDICATOR_OFF);
     }
 
 #ifdef COMBO_ENABLE
