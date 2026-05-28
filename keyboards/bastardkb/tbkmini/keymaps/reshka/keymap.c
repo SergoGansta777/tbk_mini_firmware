@@ -142,6 +142,22 @@ static bool indicator_combos_enabled(void) {
     return indicator_state.combo_enabled;
 }
 
+static bool indicator_caps_word_active(void) {
+    if (!is_keyboard_master()) {
+        return indicator_caps_word_on();
+    }
+
+    return is_caps_word_on();
+}
+
+static bool indicator_combos_active(void) {
+    if (!is_keyboard_master()) {
+        return indicator_combos_enabled();
+    }
+
+    return combo_state_local();
+}
+
 static void indicator_sync_slave(uint8_t initiator2target_buffer_size, const void *initiator2target_buffer, uint8_t target2initiator_buffer_size, void *target2initiator_buffer) {
     (void)target2initiator_buffer_size;
     (void)target2initiator_buffer;
@@ -191,7 +207,7 @@ static uint16_t thumb_layer_tapping_term(uint16_t keycode) {
 }
 
 static uint8_t active_mods(void) {
-    return get_mods() | get_weak_mods() | get_oneshot_mods();
+    return get_mods() | get_weak_mods() | get_oneshot_mods() | get_oneshot_locked_mods();
 }
 
 static bool shift_active(void) {
@@ -459,8 +475,8 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     bool combos_enabled = true;
 
 #if defined(SPLIT_KEYBOARD)
-    caps_word_on = indicator_caps_word_on();
-    combos_enabled = indicator_combos_enabled();
+    caps_word_on = indicator_caps_word_active();
+    combos_enabled = indicator_combos_active();
 #endif
 
     if (caps_word_on) {
