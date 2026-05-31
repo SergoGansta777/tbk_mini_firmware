@@ -405,11 +405,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         MAC_GLOBE, NAV_CAPS, KC_SPC,  KC_ENT,  NUMSYS_TAB, KC_BSPC
     ),
 
+    // Nav keeps the base right-thumb cluster intact; Num + System repurposes
+    // the free left middle thumb as Shift for number-row symbols.
     [L_NAV] = LAYOUT_split_3x6_3(
         OSM(MOD_LCTL), QK_LLCK,       NAV_WORD_NEXT, NAV_WORD_NEXT, XXXXXXX, XXXXXXX,    MAC_COPY,      MAC_UNDO,   NAV_LINE_START, XXXXXXX,   MAC_PASTE, KC_DEL,
         OSM(MOD_LALT), NAV_LINE_END,  MAC_DELETE_WORD_LEFT, MAC_KILL_TO_END, XXXXXXX, NAV_DOC_END, KC_LEFT, KC_DOWN, KC_UP, KC_RGHT, QK_REP, QK_AREP,
         OSM(MOD_LGUI), XXXXXXX,       XXXXXXX,        XXXXXXX,       XXXXXXX, NAV_WORD_PREV, NAV_FIND_NEXT, XXXXXXX, KC_PGUP,        KC_PGDN,  NAV_FIND,   XXXXXXX,
-        _______, _______,     KC_SPC,       KC_ENT,       KC_RSFT,  KC_BSPC
+        _______, _______,     KC_SPC,       KC_ENT,       _______,  KC_BSPC
     ),
 
     [L_NUMSYS] = LAYOUT_split_3x6_3(

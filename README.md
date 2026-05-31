@@ -40,7 +40,7 @@ Modern stack notes:
 - keymap path stays shared at `keyboards/bastardkb/tbkmini/keymaps/reshka`
 - split layer state and split activity use QMK's built-in sync
 - a small custom split RPC remains only for host `Caps Lock`, `Caps Word`, and combo-indicator state
-- `KEYBOARD_SHARED_EP` is intentionally not forced, to keep standard Boot Keyboard compatibility
+- `KEYBOARD_SHARED_EP = yes` stays enabled, because this setup needs it for reliable macOS Globe/Fn hold shortcuts
 
 Important consequence:
 

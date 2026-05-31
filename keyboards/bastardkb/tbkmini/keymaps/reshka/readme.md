@@ -35,7 +35,7 @@ This keymap now assumes the post-migration BastardKB / QMK stack:
 - built-in `SPLIT_LAYER_STATE_ENABLE` for layer-aware split cosmetics
 - built-in `SPLIT_ACTIVITY_ENABLE` so idle RGB timeouts respect either half
 - built-in `SPLIT_WATCHDOG_ENABLE` for split-link recovery
-- no forced `KEYBOARD_SHARED_EP`, since the modern build no longer needs it
+- `KEYBOARD_SHARED_EP = yes` stays enabled, because this setup needs it for reliable macOS Globe/Fn hold shortcuts
 
 The only remaining custom split RPC is the small RGB-indicator payload for host
 `Caps Lock`, `Caps Word`, and combo-enabled state, because those are not
@@ -107,6 +107,9 @@ The two momentary layer keys sit in the middle thumb positions on both halves.
 The left outer thumb is an experimental macOS Globe/Fn key implemented with
 Apple's keyboard-layout-select consumer usage. `Num + System` still exposes a
 plain `Gui/Command` on that same physical key.
+`Num + System` repurposes the free left middle thumb as a real firmware
+`Shift` for shifted number-row symbols, while `Nav` keeps the right thumb
+cluster aligned with the base layer.
 
 The base layer intentionally has no firmware home-row mods.
 
@@ -129,7 +132,7 @@ Layout logic:
 - `A` = line end
 - `I` = line start
 - `G` = document end
-- right thumbs = `Enter`, real `Shift`, `Backspace`
+- right thumbs = `Enter`, `Num + System`, `Backspace`
 - `/` = find
 - `Shift + /` = global / project search when using a real firmware Shift or one-shot Shift
 - `N` = next search result
@@ -215,7 +218,7 @@ How to think about it:
 - right hand = cursor movement
 - left hand = word, line, document, and edit actions
 - left outer column = fallback modifiers
-- free right thumb cluster = `Enter`, real `Shift`, `Backspace`
+- right thumb cluster stays close to base: `Enter`, `Num + System`, `Backspace`
 - `;` and `'` = continue or reverse the last motion idea
 
 Core motions:
@@ -244,17 +247,6 @@ Fallback modifier flow:
 - left bottom outer key = `OSM(Gui / Cmd)`
 - tap one of them for a sticky modifier on the next key
 - hold one of them for a normal held modifier while using the mouse or trackpad
-
-Selection flow:
-
-- right middle thumb = real `Shift` while `Nav` is held
-- hold `Shift`, then use `H J K L` to extend by character / line direction
-- hold `Shift`, then use `W` or `E` to extend by next word
-- hold `Shift`, then use `B` to extend by previous word
-- hold `Shift`, then use `I` / `A` to extend to line start / line end
-- hold `Shift`, then use `G` to extend to document end
-- hold `Shift`, then use `,` / `.` to extend by page where the app supports it
-- keep holding `Shift`, then use `;` / `'` to continue or reverse the last motion
 
 Edit helpers:
 
@@ -325,10 +317,7 @@ Practical layout:
 
 This keeps numbers and shifted number symbols natural for programming while
 keeping system controls on the same deliberate right-thumb layer, while still
-giving you a plain `Cmd` key when you need one inside the utility layer. The
-two utility layers now mirror each other on the free thumb cluster: `Num +
-System` gives left-thumb `Gui / Shift / Space`, while `Nav` gives right-thumb
-`Enter / Shift / Backspace`.
+giving you a plain `Cmd` key when you need one inside the utility layer.
 
 ### Keyboard layer guide
 
