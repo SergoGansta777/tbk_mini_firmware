@@ -39,8 +39,8 @@ enum combo_names {
 #define COMBO_TERM_TIGHT       26
 #define COMBO_TERM_RT_LPRN     28
 #define COMBO_TERM_NM_RCBR     32
-#define COMBO_TERM_FJ_EQL      34
-#define COMBO_TERM_DK_UNDS     38
+#define COMBO_TERM_FJ_EQL      36
+#define COMBO_TERM_DK_UNDS     40
 #define NAV_TAPPING_TERM      160
 #define NUMSYS_TAPPING_TERM   170
 #define LAYER_INDICATOR_DELAY 90
