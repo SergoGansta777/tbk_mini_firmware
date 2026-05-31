@@ -129,6 +129,7 @@ Layout logic:
 - `A` = line end
 - `I` = line start
 - `G` = document end
+- right thumbs = `Enter`, real `Shift`, `Backspace`
 - `/` = find
 - `Shift + /` = global / project search when using a real firmware Shift or one-shot Shift
 - `N` = next search result
@@ -214,6 +215,7 @@ How to think about it:
 - right hand = cursor movement
 - left hand = word, line, document, and edit actions
 - left outer column = fallback modifiers
+- free right thumb cluster = `Enter`, real `Shift`, `Backspace`
 - `;` and `'` = continue or reverse the last motion idea
 
 Core motions:
@@ -245,6 +247,7 @@ Fallback modifier flow:
 
 Selection flow:
 
+- right middle thumb = real `Shift` while `Nav` is held
 - hold `Shift`, then use `H J K L` to extend by character / line direction
 - hold `Shift`, then use `W` or `E` to extend by next word
 - hold `Shift`, then use `B` to extend by previous word
@@ -306,6 +309,7 @@ How to think about it:
 - right side = media
 - bottom row = full `F1..F12`
 - left thumbs = `Gui`, `Shift`, `Space`
+- right outer / inner thumbs keep `Enter` and `Backspace`
 
 Practical layout:
 
@@ -321,7 +325,10 @@ Practical layout:
 
 This keeps numbers and shifted number symbols natural for programming while
 keeping system controls on the same deliberate right-thumb layer, while still
-giving you a plain `Cmd` key when you need one inside the utility layer.
+giving you a plain `Cmd` key when you need one inside the utility layer. The
+two utility layers now mirror each other on the free thumb cluster: `Num +
+System` gives left-thumb `Gui / Shift / Space`, while `Nav` gives right-thumb
+`Enter / Shift / Backspace`.
 
 ### Keyboard layer guide
 
