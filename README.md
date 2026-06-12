@@ -232,9 +232,9 @@ After a firmware change, test these in order:
 
 1. Base layer typing
 2. lower-row alpha mod-taps
-3. `Nav/Caps Lock` thumb key
+3. `Nav/Language Switch` thumb key
 4. `Num + System/Tab` thumb key
-5. `Nav` layer movement, search, and repeat flow
+5. `Nav` layer movement, selection, search, and repeat flow
 6. `Num + System` layer numbers, media, and `F1..F12`
 7. `Keyboard` tri-layer
 8. combos

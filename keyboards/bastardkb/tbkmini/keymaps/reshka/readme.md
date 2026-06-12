@@ -68,7 +68,7 @@ behavior, but they are intentionally tuned differently.
 
 Thumb layer-taps:
 
-- left thumb center: `Caps Lock` on tap, `Nav` on hold
+- left thumb center: macOS input-source switch (`Ctrl+Space`) on tap, `Nav` on hold
 - right thumb center: `Tab` on tap, `Num + System` on hold
 
 `HOLD_ON_OTHER_KEY_PRESS_PER_KEY` is enabled only for those two keys. This makes
@@ -100,10 +100,10 @@ Additional HRM scoping:
 
 Additional tuning for the two thumb layer keys:
 
-- `Nav/Caps Lock` uses a `160ms` tapping term
+- `Nav/Language Switch` uses a `160ms` tapping term
 - `Num + System/Tab` uses a `170ms` tapping term
 - `QUICK_TAP_TERM` is disabled for both keys so a fast tap-then-hold does not
-  repeat `Caps Lock` or `Tab` instead of entering the layer
+  repeat the language switch chord or `Tab` instead of entering the layer
 
 Caps Word is entered by pressing both Shift keys together.
 
@@ -129,7 +129,7 @@ Right outer column, bottom to top:
 
 Thumbs:
 
-- left: `Globe/Fn`, `Nav/Caps Lock`, `Space`
+- left: `Globe/Fn`, `Nav/Language Switch`, `Space`
 - right: `Enter`, `Num + System/Tab`, `Backspace`
 
 The two momentary layer keys sit in the middle thumb positions on both halves.
@@ -178,6 +178,7 @@ Layout logic:
 - `Y`, `U`, `P` = copy, undo, paste
 - `S` = delete previous word
 - `D` = kill to end of line / paragraph
+- `V` = select current word
 - left outer column = `Ctrl`, `Alt`, `Cmd` as one-shot modifiers
 - `,` and `.` = page up / page down
 
@@ -185,6 +186,12 @@ This layer is intentionally vim-inspired, not a full Vim emulator. It borrows
 the strongest motion/search mnemonics that map cleanly to macOS shortcuts and
 leans on `Repeat` / `Alt Repeat` to supply the opposite direction where that is
 cleaner than spending extra keys.
+
+Selection behavior:
+
+- `V` selects the current word in macOS text fields and GUI editors
+- pressing `Repeat` after `V` extends the selection to the following word
+- this is intentionally a host-text-selection helper, not a terminal / Neovim object selection feature
 
 Important approximations:
 
@@ -238,7 +245,7 @@ Use the base layer as a normal plain QWERTY layer.
 Important habits:
 
 - the alpha home row is intentionally dumb and reliable
-- left middle thumb = tap `Caps Lock`, hold `Nav`
+- left middle thumb = tap macOS input-source switch (`Ctrl+Space`), hold `Nav`
 - right middle thumb = tap `Tab`, hold `Num + System`
 - `Shift + Backspace -> Delete` and `Shift + Escape -> ~` require a real
   firmware Shift key, not a host-generated HRM Shift
@@ -380,7 +387,7 @@ Use it when:
 The firmware uses a small set of LED indicators instead of full-board layer
 lighting:
 
-- `Nav` layer: after a short hold delay, only the `Nav/Caps Lock` thumb LED turns blue/cyan
+- `Nav` layer: after a short hold delay, only the `Nav/Language Switch` thumb LED turns blue/cyan
 - `Num + System` layer: after a short hold delay, the `Num + System/Tab` thumb LED turns amber and the opposite layer thumb glows dim amber
 - `Keyboard` layer: both layer-thumb LEDs turn red
 - `Caps Lock`: both shift LEDs turn amber

@@ -19,6 +19,7 @@ enum custom_keycodes {
     NAV_FIND_GLOBAL,
     NAV_FIND_NEXT,
     NAV_FIND_PREV,
+    NAV_SELECT_WORD,
     MAC_GLOBE,
 };
 
@@ -48,7 +49,9 @@ enum combo_names {
 #define LAYER_INDICATOR_DELAY 90
 #define APPLE_GLOBE_USAGE     AC_NEXT_KEYBOARD_LAYOUT_SELECT
 
-#define NAV_CAPS   LT(L_NAV, KC_CAPS)
+// QMK layer-taps encode only a basic tap keycode, so the tap action for this
+// key is overridden in process_record_user() to send macOS Ctrl+Space.
+#define NAV_LANG   LT(L_NAV, KC_CAPS)
 #define NUMSYS_TAB LT(L_NUMSYS, KC_TAB)
 
 #define HRM_Z     LCTL_T(KC_Z)
@@ -67,9 +70,12 @@ enum combo_names {
 #define MAC_KILL_TO_END      C(KC_K)
 #define NAV_WORD_NEXT  A(KC_RGHT)
 #define NAV_WORD_PREV  A(KC_LEFT)
+#define NAV_WORD_SELECT_NEXT A(S(KC_RGHT))
 #define NAV_LINE_START G(KC_LEFT)
 #define NAV_LINE_END   G(KC_RGHT)
 #define NAV_DOC_END    G(KC_DOWN)
+
+#define SELECT_WORD_TIMEOUT 5000
 
 #ifdef RGB_MATRIX_ENABLE
 enum indicator_brightness {
@@ -204,7 +210,7 @@ void housekeeping_task_user(void) {
 
 static bool is_thumb_layer_key(uint16_t keycode) {
     switch (keycode) {
-        case NAV_CAPS:
+        case NAV_LANG:
         case NUMSYS_TAB:
             return true;
         default:
@@ -273,7 +279,7 @@ static bool is_left_cmd_roll_exception(uint16_t keycode) {
 
 static uint16_t thumb_layer_tapping_term(uint16_t keycode) {
     switch (keycode) {
-        case NAV_CAPS:
+        case NAV_LANG:
             return NAV_TAPPING_TERM;
         case NUMSYS_TAB:
             return NUMSYS_TAPPING_TERM;
@@ -301,11 +307,68 @@ static bool shift_active(void) {
     return (active_mods() & MOD_MASK_SHIFT) != 0;
 }
 
+static bool select_word_repeat_active = false;
+static uint32_t select_word_timer = 0;
+
+static void reset_select_word_state(void) {
+    select_word_repeat_active = false;
+}
+
+static bool select_word_repeat_is_active(void) {
+    return select_word_repeat_active && timer_elapsed32(select_word_timer) < SELECT_WORD_TIMEOUT;
+}
+
+static bool preserves_select_word_state(uint16_t keycode) {
+    switch (keycode) {
+        case NAV_SELECT_WORD:
+        case QK_REP:
+        case QK_AREP:
+            return true;
+        default:
+            return false;
+    }
+}
+
 static void remember_semantic_repeat_key(uint16_t keycode) {
     if (get_repeat_key_count() == 0) {
         set_last_keycode(keycode);
         set_last_mods(0);
     }
+}
+
+static void run_mac_input_source_switch(void) {
+    uint8_t saved_mods               = get_mods();
+    uint8_t saved_weak_mods          = get_weak_mods();
+    uint8_t saved_oneshot_mods       = get_oneshot_mods();
+    uint8_t saved_oneshot_locked_mods = get_oneshot_locked_mods();
+
+    // Keep the language switch key deterministic even if a real modifier or an
+    // active one-shot mod is already down.
+    clear_mods();
+    clear_weak_mods();
+    clear_oneshot_mods();
+    set_oneshot_locked_mods(0);
+    send_keyboard_report();
+
+    tap_code16(C(KC_SPC));
+
+    set_mods(saved_mods);
+    set_weak_mods(saved_weak_mods);
+    set_oneshot_mods(saved_oneshot_mods);
+    set_oneshot_locked_mods(saved_oneshot_locked_mods);
+    send_keyboard_report();
+}
+
+static void run_select_word_forward(void) {
+    if (!select_word_repeat_is_active()) {
+        tap_code16(NAV_WORD_NEXT);
+        tap_code16(NAV_WORD_PREV);
+    }
+
+    tap_code16(NAV_WORD_SELECT_NEXT);
+    select_word_repeat_active = true;
+    select_word_timer         = timer_read32();
+    remember_semantic_repeat_key(NAV_SELECT_WORD);
 }
 
 static void run_semantic_shortcut(uint16_t keycode, uint16_t shortcut) {
@@ -478,9 +541,26 @@ uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    if (record->event.pressed && !preserves_select_word_state(keycode)) {
+        reset_select_word_state();
+    }
+
     switch (keycode) {
+        case NAV_LANG:
+            if (record->tap.count) {
+                if (record->event.pressed) {
+                    run_mac_input_source_switch();
+                }
+                return false;
+            }
+            break;
         case MAC_GLOBE:
             host_consumer_send(record->event.pressed ? APPLE_GLOBE_USAGE : 0);
+            return false;
+        case NAV_SELECT_WORD:
+            if (record->event.pressed) {
+                run_select_word_forward();
+            }
             return false;
         default:
             break;
@@ -538,7 +618,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSLS,
         KC_ESC,  KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
         KC_LSFT, HRM_Z,   HRM_X,   HRM_C,   HRM_V,   KC_B,    KC_N,    HRM_M,   HRM_COMM, HRM_DOT, HRM_SLSH, KC_RSFT,
-        MAC_GLOBE, NAV_CAPS, KC_SPC,  KC_ENT,  NUMSYS_TAB, KC_BSPC
+        MAC_GLOBE, NAV_LANG, KC_SPC,  KC_ENT,  NUMSYS_TAB, KC_BSPC
     ),
 
     // Nav keeps the base right-thumb cluster intact; Num + System repurposes
@@ -546,7 +626,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [L_NAV] = LAYOUT_split_3x6_3(
         OSM(MOD_LCTL), QK_LLCK,       NAV_WORD_NEXT, NAV_WORD_NEXT, XXXXXXX, XXXXXXX,    MAC_COPY,      MAC_UNDO,   NAV_LINE_START, XXXXXXX,   MAC_PASTE, KC_DEL,
         OSM(MOD_LALT), NAV_LINE_END,  MAC_DELETE_WORD_LEFT, MAC_KILL_TO_END, XXXXXXX, NAV_DOC_END, KC_LEFT, KC_DOWN, KC_UP, KC_RGHT, QK_REP, QK_AREP,
-        OSM(MOD_LGUI), XXXXXXX,       XXXXXXX,        XXXXXXX,       XXXXXXX, NAV_WORD_PREV, NAV_FIND_NEXT, XXXXXXX, KC_PGUP,        KC_PGDN,  NAV_FIND,   XXXXXXX,
+        OSM(MOD_LGUI), XXXXXXX,       XXXXXXX,        XXXXXXX,       NAV_SELECT_WORD, NAV_WORD_PREV, NAV_FIND_NEXT, XXXXXXX, KC_PGUP,        KC_PGDN,  NAV_FIND,   XXXXXXX,
         _______, _______,     KC_SPC,       KC_ENT,       _______,  KC_BSPC
     ),
 
