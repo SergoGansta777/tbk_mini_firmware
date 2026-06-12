@@ -191,6 +191,7 @@ Selection behavior:
 
 - `V` selects the current word in macOS text fields and GUI editors
 - pressing `Repeat` after `V` extends the selection to the following word
+- pressing `Alt Repeat` after `V` / `Repeat` steps the selection back by one word
 - this is intentionally a host-text-selection helper, not a terminal / Neovim object selection feature
 
 Important approximations:

@@ -71,6 +71,7 @@ enum combo_names {
 #define NAV_WORD_NEXT  A(KC_RGHT)
 #define NAV_WORD_PREV  A(KC_LEFT)
 #define NAV_WORD_SELECT_NEXT A(S(KC_RGHT))
+#define NAV_WORD_SELECT_PREV A(S(KC_LEFT))
 #define NAV_LINE_START G(KC_LEFT)
 #define NAV_LINE_END   G(KC_RGHT)
 #define NAV_DOC_END    G(KC_DOWN)
@@ -307,15 +308,22 @@ static bool shift_active(void) {
     return (active_mods() & MOD_MASK_SHIFT) != 0;
 }
 
-static bool select_word_repeat_active = false;
 static uint32_t select_word_timer = 0;
+static uint16_t select_word_span = 0;
 
 static void reset_select_word_state(void) {
-    select_word_repeat_active = false;
+    select_word_span = 0;
 }
 
 static bool select_word_repeat_is_active(void) {
-    return select_word_repeat_active && timer_elapsed32(select_word_timer) < SELECT_WORD_TIMEOUT;
+    if (select_word_span == 0) {
+        return false;
+    }
+    if (timer_elapsed32(select_word_timer) >= SELECT_WORD_TIMEOUT) {
+        reset_select_word_state();
+        return false;
+    }
+    return true;
 }
 
 static bool preserves_select_word_state(uint16_t keycode) {
@@ -366,8 +374,26 @@ static void run_select_word_forward(void) {
     }
 
     tap_code16(NAV_WORD_SELECT_NEXT);
-    select_word_repeat_active = true;
-    select_word_timer         = timer_read32();
+    select_word_timer = timer_read32();
+    if (select_word_span < UINT16_MAX) {
+        select_word_span++;
+    }
+    remember_semantic_repeat_key(NAV_SELECT_WORD);
+}
+
+static void run_select_word_backward_step(void) {
+    if (!select_word_repeat_is_active() || select_word_span <= 0) {
+        return;
+    }
+
+    tap_code16(NAV_WORD_SELECT_PREV);
+    select_word_timer = timer_read32();
+    select_word_span--;
+
+    if (select_word_span == 0) {
+        reset_select_word_state();
+    }
+
     remember_semantic_repeat_key(NAV_SELECT_WORD);
 }
 
@@ -529,6 +555,8 @@ uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
             return NAV_FIND_GLOBAL;
         case NAV_FIND_GLOBAL:
             return NAV_FIND;
+        case NAV_SELECT_WORD:
+            return NAV_SELECT_WORD;
         // Keep search navigation symmetrical even though it is implemented as
         // custom keycodes rather than plain modded basic keycodes.
         case NAV_FIND_NEXT:
@@ -559,7 +587,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             return false;
         case NAV_SELECT_WORD:
             if (record->event.pressed) {
-                run_select_word_forward();
+                if (get_repeat_key_count() < 0) {
+                    run_select_word_backward_step();
+                } else {
+                    run_select_word_forward();
+                }
             }
             return false;
         default:
