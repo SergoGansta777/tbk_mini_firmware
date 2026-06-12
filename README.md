@@ -32,7 +32,7 @@ layout for revisioned TBK Mini targets.
 - vendor branch: local `bkb-develop` tracking `origin/bkb-develop`
 - custom logic: this external userspace repo
 - runtime remapping: VIA
-- home-row mods: currently handled on macOS by a host-side app, not in firmware
+- alpha mods: firmware lower-row macOS-style mod-taps
 
 Modern stack notes:
 
@@ -221,7 +221,7 @@ These are intentional project rules, not accidents:
 
 1. Do not keep personal keymap logic in the vendor firmware repo.
 2. Keep BastardKB QMK as the base and this repo as the custom layer.
-3. Keep home-row mods out of firmware for now.
+3. Treat firmware alpha mods as the stable default design.
 4. Do not mix firmware HRMs and host-side HRMs at the same time.
 5. Use VIA for simple remaps only after the firmware structure is stable.
 6. Keep advanced behavior such as combos and layer logic in source control here.
@@ -231,14 +231,15 @@ These are intentional project rules, not accidents:
 After a firmware change, test these in order:
 
 1. Base layer typing
-2. `Nav/Caps Lock` thumb key
-3. `Num + System/Tab` thumb key
-4. `Nav` layer movement, search, and repeat flow
-5. `Num + System` layer numbers, media, and `F1..F12`
-6. `Keyboard` tri-layer
-7. combos
-8. RGB indicators
-9. VIA detection
+2. lower-row alpha mod-taps
+3. `Nav/Caps Lock` thumb key
+4. `Num + System/Tab` thumb key
+5. `Nav` layer movement, search, and repeat flow
+6. `Num + System` layer numbers, media, and `F1..F12`
+7. `Keyboard` tri-layer
+8. combos
+9. RGB indicators
+10. VIA detection
 
 Also remember:
 

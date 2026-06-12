@@ -41,6 +41,8 @@ enum combo_names {
 #define COMBO_TERM_NM_RCBR     32
 #define COMBO_TERM_FJ_EQL      36
 #define COMBO_TERM_DK_UNDS     40
+#define HRM_TAPPING_TERM      250
+#define HRM_SHIFT_TAPPING_TERM 220
 #define NAV_TAPPING_TERM      160
 #define NUMSYS_TAPPING_TERM   170
 #define LAYER_INDICATOR_DELAY 90
@@ -48,6 +50,15 @@ enum combo_names {
 
 #define NAV_CAPS   LT(L_NAV, KC_CAPS)
 #define NUMSYS_TAB LT(L_NUMSYS, KC_TAB)
+
+#define HRM_Z     LCTL_T(KC_Z)
+#define HRM_X     LALT_T(KC_X)
+#define HRM_C     LGUI_T(KC_C)
+#define HRM_V     LSFT_T(KC_V)
+#define HRM_M     RSFT_T(KC_M)
+#define HRM_COMM  RGUI_T(KC_COMM)
+#define HRM_DOT   RALT_T(KC_DOT)
+#define HRM_SLSH  RCTL_T(KC_SLSH)
 
 #define MAC_UNDO   G(KC_Z)
 #define MAC_COPY   G(KC_C)
@@ -201,12 +212,82 @@ static bool is_thumb_layer_key(uint16_t keycode) {
     }
 }
 
+enum hrm_tapping_profile {
+    HRM_PROFILE_NONE,
+    HRM_PROFILE_STANDARD,
+    HRM_PROFILE_SHIFT,
+};
+
+static enum hrm_tapping_profile firmware_hrm_profile(uint16_t keycode) {
+    switch (keycode) {
+        case HRM_Z:
+        case HRM_X:
+        case HRM_C:
+        case HRM_COMM:
+        case HRM_DOT:
+        case HRM_SLSH:
+            return HRM_PROFILE_STANDARD;
+        case HRM_V:
+        case HRM_M:
+            return HRM_PROFILE_SHIFT;
+        default:
+            return HRM_PROFILE_NONE;
+    }
+}
+
+static bool is_firmware_hrm_key(uint16_t keycode) {
+    return firmware_hrm_profile(keycode) != HRM_PROFILE_NONE;
+}
+
+static bool is_flow_tap_context_key(uint16_t keycode) {
+    uint16_t tap_keycode = get_tap_keycode(keycode);
+
+    if ((get_mods() & (MOD_MASK_CG | MOD_MASK_ALT)) != 0) {
+        return false;
+    }
+
+    switch (tap_keycode) {
+        case KC_A ... KC_Z:
+        case KC_COMM:
+        case KC_DOT:
+        case KC_SCLN:
+        case KC_SLSH:
+            return true;
+        default:
+            return false;
+    }
+}
+
+static bool is_left_cmd_roll_exception(uint16_t keycode) {
+    uint16_t tap_keycode = get_tap_keycode(keycode);
+
+    switch (tap_keycode) {
+        case KC_Z:
+        case KC_X:
+        case KC_V:
+            return true;
+        default:
+            return false;
+    }
+}
+
 static uint16_t thumb_layer_tapping_term(uint16_t keycode) {
     switch (keycode) {
         case NAV_CAPS:
             return NAV_TAPPING_TERM;
         case NUMSYS_TAB:
             return NUMSYS_TAPPING_TERM;
+        default:
+            return TAPPING_TERM;
+    }
+}
+
+static uint16_t firmware_hrm_tapping_term(uint16_t keycode) {
+    switch (firmware_hrm_profile(keycode)) {
+        case HRM_PROFILE_STANDARD:
+            return HRM_TAPPING_TERM;
+        case HRM_PROFILE_SHIFT:
+            return HRM_SHIFT_TAPPING_TERM;
         default:
             return TAPPING_TERM;
     }
@@ -240,6 +321,59 @@ static bool mods_match_tab_pair(uint8_t mods) {
     return (mods & ~MOD_MASK_SHIFT) == 0;
 }
 
+static bool has_left_cmd_same_hand_exception(uint16_t tap_hold_keycode, uint16_t other_keycode) {
+    return tap_hold_keycode == HRM_C && is_left_cmd_roll_exception(other_keycode);
+}
+
+const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM = LAYOUT_split_3x6_3(
+    'L', 'L', 'L', 'L', 'L', 'L',  'R', 'R', 'R', 'R', 'R', 'R',
+    'L', 'L', 'L', 'L', 'L', 'L',  'R', 'R', 'R', 'R', 'R', 'R',
+    'L', 'L', 'L', 'L', 'L', 'L',  'R', 'R', 'R', 'R', 'R', 'R',
+    'L', 'L', 'L',  'R', 'R', 'R'
+);
+
+#ifdef SPECULATIVE_HOLD
+bool get_speculative_hold(uint16_t keycode, keyrecord_t *record) {
+    (void)record;
+    return is_firmware_hrm_key(keycode);
+}
+#endif
+
+bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
+    (void)record;
+    return is_firmware_hrm_key(keycode);
+}
+
+uint16_t get_flow_tap_term(uint16_t keycode, keyrecord_t *record, uint16_t prev_keycode) {
+    (void)record;
+
+    if (is_firmware_hrm_key(keycode) && is_flow_tap_context_key(prev_keycode)) {
+        return FLOW_TAP_TERM;
+    }
+
+    return 0;
+}
+
+#ifdef CHORDAL_HOLD
+bool get_chordal_hold(uint16_t tap_hold_keycode, keyrecord_t *tap_hold_record, uint16_t other_keycode, keyrecord_t *other_record) {
+    if (is_thumb_layer_key(tap_hold_keycode)) {
+        return true;
+    }
+
+    if (!is_firmware_hrm_key(tap_hold_keycode)) {
+        return get_chordal_hold_default(tap_hold_record, other_record);
+    }
+
+    // Preserve the classic left-hand Cmd+Z/X/V editing cluster even though the
+    // firmware Command key now lives on the lower row.
+    if (has_left_cmd_same_hand_exception(tap_hold_keycode, other_keycode)) {
+        return true;
+    }
+
+    return get_chordal_hold_default(tap_hold_record, other_record);
+}
+#endif
+
 static uint16_t alternate_tab_keycode(uint8_t mods) {
     return (mods & MOD_MASK_SHIFT) ? KC_TAB : S(KC_TAB);
 }
@@ -252,8 +386,8 @@ static const uint16_t PROGMEM combo_rt_lprn[] = {KC_R, KC_T, COMBO_END};
 static const uint16_t PROGMEM combo_yu_rprn[] = {KC_Y, KC_U, COMBO_END};
 static const uint16_t PROGMEM combo_fg_lbrc[] = {KC_F, KC_G, COMBO_END};
 static const uint16_t PROGMEM combo_hj_rbrc[] = {KC_H, KC_J, COMBO_END};
-static const uint16_t PROGMEM combo_vb_lcbr[] = {KC_V, KC_B, COMBO_END};
-static const uint16_t PROGMEM combo_nm_rcbr[] = {KC_N, KC_M, COMBO_END};
+static const uint16_t PROGMEM combo_vb_lcbr[] = {HRM_V, KC_B, COMBO_END};
+static const uint16_t PROGMEM combo_nm_rcbr[] = {KC_N, HRM_M, COMBO_END};
 static const uint16_t PROGMEM combo_df_mins[] = {KC_D, KC_F, COMBO_END};
 static const uint16_t PROGMEM combo_dk_unds[] = {KC_D, KC_K, COMBO_END};
 static const uint16_t PROGMEM combo_fj_eql[]  = {KC_F, KC_J, COMBO_END};
@@ -315,7 +449,9 @@ bool combo_should_trigger(uint16_t combo_index, combo_t *combo, uint16_t keycode
 }
 
 uint16_t get_alt_repeat_key_keycode_user(uint16_t keycode, uint8_t mods) {
-    switch (keycode) {
+    uint16_t tap_keycode = get_tap_keycode(keycode);
+
+    switch (tap_keycode) {
         case KC_TAB:
             if (mods_match_tab_pair(mods)) {
                 return alternate_tab_keycode(mods);
@@ -401,7 +537,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [L_BASE] = LAYOUT_split_3x6_3(
         KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSLS,
         KC_ESC,  KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
-        KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
+        KC_LSFT, HRM_Z,   HRM_X,   HRM_C,   HRM_V,   KC_B,    KC_N,    HRM_M,   HRM_COMM, HRM_DOT, HRM_SLSH, KC_RSFT,
         MAC_GLOBE, NAV_CAPS, KC_SPC,  KC_ENT,  NUMSYS_TAB, KC_BSPC
     ),
 
@@ -435,7 +571,11 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     (void)record;
-    return thumb_layer_tapping_term(keycode);
+    if (is_thumb_layer_key(keycode)) {
+        return thumb_layer_tapping_term(keycode);
+    }
+
+    return firmware_hrm_tapping_term(keycode);
 }
 
 uint16_t get_quick_tap_term(uint16_t keycode, keyrecord_t *record) {

@@ -5,7 +5,7 @@ This keymap is a documented starting point for a TBK Mini on Splinky v3 using:
 - BastardKB `bkb-develop` as the firmware base
 - external QMK userspace for custom keymaps
 - VIA for live remapping after the firmware structure is stable
-- macOS host-side home-row mods, not firmware home-row mods
+- firmware lower-row mod-taps as the current default design
 
 The root repo README is the recovery and operations guide. This file is the
 behavior and design guide for the current keymap.
@@ -13,7 +13,7 @@ behavior and design guide for the current keymap.
 ## Design goals
 
 1. Keep the base layer simple and predictable.
-2. Keep firmware responsibilities separate from host-side home-row mods.
+2. Compare firmware alpha mods against the old macOS HRM approach cleanly.
 3. Use a small number of modern QMK features with clear value.
 4. Keep the layer model small while making navigation and system control more coherent.
 
@@ -41,26 +41,32 @@ The only remaining custom split RPC is the small RGB-indicator payload for host
 `Caps Lock`, `Caps Word`, and combo-enabled state, because those are not
 mirrored by QMK's core split sync.
 
-## Home-Row Mods Policy
+## Firmware HRM Policy
 
-This keymap intentionally keeps the alpha home row plain.
+This keymap intentionally keeps the alpha home row plain and uses lower-row
+firmware mod-taps instead.
 
 Current policy:
 
-- home-row mods are handled by the macOS HRM app, not by QMK
-- firmware does not use `MT()` or other alpha home-row tap-hold behavior
+- lower-row mod-taps are used instead of classic home-row mods
+- the modifier order mirrors the old macOS HRM app, shifted one row lower
+- the stable comparison point is the old macOS HRM app, not mixed daily use
 - firmware-only modifier features see only real firmware modifiers
 
-Practical consequence:
+Practical consequences:
 
 - `Shift + Backspace -> Delete` works only with a real firmware Shift key
 - `Shift + Escape -> ~` also works only with a real firmware Shift key
-- a host-generated Shift from the macOS HRM app is not visible to QMK as a
-  physical modifier press
+- speculative and tap-hold features now apply to firmware alpha mods directly
+- any self-shortcut on an HRM tap key still needs the opposite-hand modifier
+  key, for example left `Cmd+C`
 
 ## Tap-hold behavior
 
-Only the two thumb layer-taps use tap-hold behavior:
+The thumb layer-taps and the lower-row firmware mod-taps both use tap-hold
+behavior, but they are intentionally tuned differently.
+
+Thumb layer-taps:
 
 - left thumb center: `Caps Lock` on tap, `Nav` on hold
 - right thumb center: `Tab` on tap, `Num + System` on hold
@@ -68,6 +74,29 @@ Only the two thumb layer-taps use tap-hold behavior:
 `HOLD_ON_OTHER_KEY_PRESS_PER_KEY` is enabled only for those two keys. This makes
 the layer decision settle earlier when you chord the thumb key with another key,
 which is better for fast typing than waiting out the full tapping term.
+
+The lower-row mod-taps use a separate modern QMK stack:
+
+- `TAPPING_TERM 250`
+- `PERMISSIVE_HOLD_PER_KEY`
+- `FLOW_TAP_TERM 150`
+- `CHORDAL_HOLD`
+- `SPECULATIVE_HOLD`
+
+This is the conservative "timeless-like" core-QMK configuration: larger tapping
+term for timer-insensitive behavior, Flow Tap to remove lag during fast typing,
+Chordal Hold for opposite-hands filtering, and Speculative Hold to make held
+shortcuts feel more immediate.
+
+Additional HRM scoping:
+
+- `Permissive Hold` applies only to the lower-row alpha mods
+- `Flow Tap` applies only when a lower-row HRM follows normal alpha /
+  punctuation typing context
+- `Chordal Hold` falls back to the default opposite-hands rule only for the
+  lower-row HRMs, while the thumb layer-taps are allowed to hold normally
+- left `Cmd` gets a narrow same-hand exception for `Cmd+Z`, `Cmd+X`, and
+  `Cmd+V`
 
 Additional tuning for the two thumb layer keys:
 
@@ -104,7 +133,7 @@ Thumbs:
 - right: `Enter`, `Num + System/Tab`, `Backspace`
 
 The two momentary layer keys sit in the middle thumb positions on both halves.
-The left outer thumb is an experimental macOS Globe/Fn key implemented with
+The left outer thumb is a custom macOS Globe/Fn key implemented with
 Apple's keyboard-layout-select consumer usage. `Num + System` still exposes a
 plain `Gui/Command` on that same physical key.
 `Num + System` repurposes the free left middle thumb as a real firmware
@@ -112,6 +141,14 @@ plain `Gui/Command` on that same physical key.
 cluster aligned with the base layer.
 
 The base layer intentionally has no firmware home-row mods.
+
+Lower-row mod-taps:
+
+- left: `Z = Ctrl`, `X = Opt`, `C = Cmd`, `V = Shift`
+- right: `M = Shift`, `, = Cmd`, `. = Opt`, `/ = Ctrl`
+
+This mirrors the old macOS HRM app ordering on the lower row while keeping the
+alpha home row plain for editor movement.
 
 ### Layer 1: Nav
 
@@ -492,7 +529,7 @@ If a flashed default layout does not seem to apply:
 
 ## Future Work Notes
 
-If home-row mods ever move into firmware, treat that as a separate design
-project. Do not mix host-side HRMs and firmware HRMs at the same time in daily
-use, because it makes debugging tap-hold behavior and modifier-dependent
-features much harder.
+If classic alpha home-row mods ever move into firmware, treat that as a
+separate design project from this lower-row design. Do not mix host-side
+HRMs and firmware HRMs at the same time in daily use, because it makes
+debugging tap-hold behavior and modifier-dependent features much harder.
