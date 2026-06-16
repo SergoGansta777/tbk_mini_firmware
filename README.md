@@ -235,7 +235,7 @@ After a firmware change, test these in order:
 3. `Nav/Language Switch` thumb key
 4. `Num + System/Tab` thumb key
 5. `Nav` layer movement, selection, search, and repeat flow
-6. `Num + System` layer numbers, media, and `F1..F12`
+6. `Num + System` layer numbers, backtick / tilde, media, and `F1..F12`
 7. `Keyboard` tri-layer
 8. combos
 9. RGB indicators
@@ -244,7 +244,6 @@ After a firmware change, test these in order:
 Also remember:
 
 - `Shift + Backspace -> Delete` requires a real firmware Shift key
-- `Shift + Escape -> ~` also requires a real firmware Shift key
 - both-shifts can enable Caps Word
 
 ## Updating Upstream Later

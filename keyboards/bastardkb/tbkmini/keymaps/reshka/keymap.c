@@ -117,11 +117,9 @@ static uint8_t indicator_state = INDICATOR_COMBOS_ACTIVE;
 #endif
 
 static const key_override_t delete_key_override = ko_make_basic(MOD_MASK_SHIFT, KC_BSPC, KC_DEL);
-static const key_override_t tilde_esc_override  = ko_make_basic(MOD_MASK_SHIFT, KC_ESC, S(KC_GRV));
 
 const key_override_t *const key_overrides[] = {
     &delete_key_override,
-    &tilde_esc_override,
 };
 
 static uint8_t active_layer(void) {
@@ -663,7 +661,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
 
     [L_NUMSYS] = LAYOUT_split_3x6_3(
-        QK_LLCK, KC_1,      KC_2,     KC_3,     KC_4,      KC_5,      KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_DEL,
+        KC_GRV,  KC_1,      KC_2,     KC_3,     KC_4,      KC_5,      KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_DEL,
         KC_BRID, KC_BRIU,   XXXXXXX,  XXXXXXX,  XXXXXXX,   XXXXXXX,   KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD, KC_VOLU,
         KC_F1,   KC_F2,     KC_F3,    KC_F4,    KC_F5,     KC_F6,     KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,
         KC_LGUI, KC_LSFT,   KC_SPC,    KC_ENT,    _______,   KC_BSPC

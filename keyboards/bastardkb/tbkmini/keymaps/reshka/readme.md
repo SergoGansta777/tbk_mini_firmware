@@ -56,7 +56,6 @@ Current policy:
 Practical consequences:
 
 - `Shift + Backspace -> Delete` works only with a real firmware Shift key
-- `Shift + Escape -> ~` also works only with a real firmware Shift key
 - speculative and tap-hold features now apply to firmware alpha mods directly
 - any self-shortcut on an HRM tap key still needs the opposite-hand modifier
   key, for example left `Cmd+C`
@@ -211,16 +210,16 @@ semantics for things like distinct `w` vs `e` or true `0` vs `^`.
 
 Purpose:
 
+- dedicated backtick / tilde in the normal number-row corner
 - top-row numbers for programming and counts
 - `Delete`
 - media controls
 - brightness
 - `F1..F12`
-- layer lock
 
-This layer is intentionally limited to machine-level controls: function keys,
-media, display brightness, and the number row on the right-thumb layer, so
-`Nav` can stay focused on movement instead of carrying both jobs at once.
+This layer is intentionally limited to machine-level controls plus the standard
+number-row corner backtick key, so `Nav` can stay focused on movement instead
+of carrying both jobs at once.
 
 ### Layer 3: Keyboard
 
@@ -248,8 +247,8 @@ Important habits:
 - the alpha home row is intentionally dumb and reliable
 - left middle thumb = tap macOS input-source switch (`Ctrl+Space`), hold `Nav`
 - right middle thumb = tap `Tab`, hold `Num + System`
-- `Shift + Backspace -> Delete` and `Shift + Escape -> ~` require a real
-  firmware Shift key, not a host-generated HRM Shift
+- `Shift + Backspace -> Delete` requires a real firmware Shift key, not a
+  host-generated HRM Shift
 
 This layer is meant to stay low-drama so the more advanced behavior lives only
 on deliberate layer holds and combos.
@@ -350,9 +349,9 @@ How to think about it:
 
 Practical layout:
 
-- top row = `1 2 3 4 5 6 7 8 9 0`
+- top row = `` ` 1 2 3 4 5 6 7 8 9 0 ``
 - top-right outer key = `Delete`
-- top-left outer key = `Layer Lock` with a 60-second idle timeout
+- top-left outer key = backtick, with `Shift` on the left middle thumb for `~`
 - left home row = brightness plus four intentionally empty spare slots
 - right home row = previous, play/pause, next, mute, volume down, volume up
 - bottom row = `F1..F12` in order
@@ -411,10 +410,6 @@ fed by activity from either half of the split board.
 ## Key overrides
 
 - `Shift + Backspace -> Delete`
-- `Shift + Escape -> ~`
-
-The second override gives easy access to `~` without introducing a dedicated
-symbol layer, so a separate `~` combo is intentionally omitted.
 
 ## Combos
 
